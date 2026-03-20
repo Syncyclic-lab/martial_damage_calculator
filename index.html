@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="D&D 5e Average Damage Calculator — compute expected damage per turn across AC 10–20">
+
+<meta http-equiv="Content-Security-Policy"
+content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';">
+
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+
+  <title>D&amp;D Damage Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --iron:#2a2a2e;--steel:#3d3d44;--blade:#5a5a66;--gold:#c8922a;
+      --gold-light:#e8b84b;--gold-dim:#7a5518;--blood:#8b1a1a;--blood-light:#c0392b;
+      --parchment:#f0e6cc;--parchment-dark:#d4c49a;
+      --shadow:rgba(0,0,0,0.6);--glow:rgba(200,146,42,0.35);
+    }
+    html { font-size: 16px; }
+    body {
+      font-family: 'IM Fell English', Georgia, 'Times New Roman', serif;
+      background-color: var(--iron);
+      color: var(--parchment);
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+      background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(90,90,102,0.3) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(139,26,26,0.15) 0%, transparent 50%);
+    }
+    .page-wrapper { max-width: 720px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .header { text-align: center; padding: 32px 20px 24px; position: relative; }
+    .crest { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px; }
+    .crest-line { flex: 1; height: 2px; background: linear-gradient(to right, transparent, var(--gold), transparent); max-width: 120px; }
+    .crest-icon {
+      font-size: 2.4rem;
+      will-change: filter;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      animation: flicker 4s ease-in-out infinite;
+    }
+    @keyframes flicker {
+      0%,100% { filter: drop-shadow(0 0 8px var(--glow)); }
+      50%      { filter: drop-shadow(0 0 18px rgba(200,146,42,0.6)); }
+    }
+    .header h1 {
+      font-family: 'Cinzel Decorative', 'Times New Roman', serif;
+      font-size: clamp(1.1rem, 4.5vw, 1.75rem);
+      color: var(--gold-light);
+      text-shadow: 0 2px 12px var(--glow), 0 0 40px rgba(200,146,42,0.2);
+      letter-spacing: 0.04em;
+      line-height: 1.25;
+    }
+    .header .subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.65rem, 2.5vw, 0.8rem);
+      color: var(--parchment-dark);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-top: 6px;
+      opacity: 0.8;
+    }
+
+    /* ── Panels ── */
+    .panel {
+      background: linear-gradient(160deg, #32323a 0%, #26262d 100%);
+      border: 1px solid var(--blade); border-radius: 6px;
+      padding: 24px 24px 20px; margin-bottom: 16px; position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .panel::before, .panel::after {
+      content: ''; position: absolute; width: 14px; height: 14px;
+      border-color: var(--gold-dim); border-style: solid;
+    }
+    .panel::before  { top: 6px;  left: 6px;  border-width: 1px 0 0 1px; }
+    .panel::after   { top: 6px;  right: 6px; border-width: 1px 1px 0 0; }
+    .panel-corners {
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    .panel-corners::before, .panel-corners::after {
+      content: ''; position: absolute; width: 14px; height: 14px;
+      border-color: var(--gold-dim); border-style: solid;
+    }
+    .panel-corners::before { bottom: 6px; left: 6px;  border-width: 0 0 1px 1px; }
+    .panel-corners::after  { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
+
+    .mb-14 { margin-bottom: 14px; }
+    .flex-center-gap { display: flex; align-items: center; gap: 6px; }
+    .icon-large { font-size: 1rem; }
+
+    /* ── Form grid ── */
+    .form-grid   { display: grid; grid-template-columns: 1fr 1fr;       gap: 14px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr;   gap: 14px; }
+    .form-group  { display: flex; flex-direction: column; }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--parchment-dark); margin-bottom: 6px;
+    }
+
+    /* ── Inputs ── */
+    input[type="number"],
+    input[type="text"],
+    select {
+      background: var(--iron); border: 1px solid var(--blade); border-radius: 3px;
+      color: var(--parchment);
+      font-family: 'IM Fell English', Georgia, serif; font-size: 1.05rem;
+      padding: 10px 12px; width: 100%;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      appearance: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23c8922a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+    select option { background: var(--iron); color: var(--parchment); }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    select:focus {
+      outline: none; border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(200,146,42,0.2);
+    }
+    input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+    .input-hint {
+      font-family: 'Cinzel', serif; font-size: 0.58rem;
+      letter-spacing: 0.08em; color: var(--blade); margin-top: 5px;
+    }
+
+    /* ── Toggle cards ── */
+    .toggle-group { margin-bottom: 12px; }
+    .toggle-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    .toggle-grid-2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .toggle-grid-solo {
+      display: grid; grid-template-columns: 1fr; gap: 8px;
+    }
+    .toggle-card input[type="checkbox"] {
+      position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
+    }
+    .toggle-card {
+      display: flex; flex-direction: column;
+      background: var(--iron); border: 1px solid var(--blade); border-radius: 5px;
+      padding: 11px 12px 10px; cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      user-select: none; position: relative; overflow: hidden;
+    }
+    .toggle-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--gold) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .toggle-card:hover { border-color: var(--blade); background: var(--steel); }
+    .toggle-card:hover::before { opacity: 0.06; }
+    .toggle-card.is-checked {
+      border-color: var(--gold);
+      background: linear-gradient(160deg, rgba(122,85,24,0.22) 0%, var(--iron) 100%);
+      box-shadow: 0 0 10px rgba(200,146,42,0.18), inset 0 0 6px rgba(200,146,42,0.06);
+    }
+    .toggle-card.is-checked::before { opacity: 0.1; }
+    .toggle-card-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+    }
+    .toggle-card-icon { font-size: 1.1rem; line-height: 1; flex-shrink: 0; }
+    .toggle-card-name {
+      font-family: 'Cinzel', serif; font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--parchment-dark);
+      transition: color 0.2s;
+    }
+    .toggle-card.is-checked .toggle-card-name { color: var(--gold-light); }
+    .toggle-card-desc {
+      font-family: 'IM Fell English', Georgia, serif; font-size: 0.72rem;
+      font-style: italic; color: var(--blade); line-height: 1.35;
+      transition: color 0.2s;
+    }
+    .toggle-card.is-checked .toggle-card-desc { color: var(--parchment-dark); }
+    .toggle-card-pip {
+      position: absolute; top: 7px; right: 8px;
+      width: 14px; height: 14px;
+      border: 1px solid var(--blade); border-radius: 2px;
+      background: var(--iron); transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .toggle-card.is-checked .toggle-card-pip {
+      border-color: var(--gold); background: var(--gold-dim);
+    }
+    .toggle-card-pip::after {
+      content: '✦'; font-size: 0.5rem; color: var(--gold-light);
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .toggle-card.is-checked .toggle-card-pip::after { opacity: 1; }
+
+    /* Mastery badge on toggle card */
+    .mastery-badge {
+      display: inline-block;
+      font-family: 'Cinzel', serif; font-size: 0.52rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      background: rgba(139,26,26,0.3); color: #e07070;
+      border: 1px solid rgba(139,26,26,0.5); border-radius: 2px;
+      padding: 1px 5px; margin-top: 5px; align-self: flex-start;
+    }
+    .toggle-card.is-checked .mastery-badge {
+      background: rgba(139,26,26,0.45); color: #f09090;
+      border-color: rgba(192,57,43,0.6);
+    }
+
+    /* Graze input row inside weapon section */
+    .graze-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+      margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid rgba(90,90,102,0.35);
+    }
+
+    @media (max-width: 540px) {
+      .toggle-grid { grid-template-columns: 1fr 1fr; }
+      .toggle-grid-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 360px) {
+      .toggle-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Accordion sections ── */
+    .accordion {
+      border: 1px solid var(--blade); border-radius: 5px;
+      margin-bottom: 8px; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .accordion[open] { border-color: var(--gold-dim); }
+
+    .accordion-trigger {
+      display: block;
+      padding: 0;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      background: none;
+      transition: background 0.2s;
+    }
+    .accordion-trigger::-webkit-details-marker { display: none; }
+    .accordion-trigger::marker { content: ''; display: none; }
+    .accordion-trigger:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: -2px;
+    }
+    .accordion-trigger-inner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, rgba(61,61,68,0.9) 0%, rgba(42,42,46,0.9) 100%);
+      transition: background 0.2s;
+    }
+    .accordion[open] .accordion-trigger-inner {
+      background: linear-gradient(90deg, rgba(80,60,24,0.35) 0%, rgba(42,42,46,0.9) 100%);
+      border-bottom: 1px solid var(--blade);
+    }
+    .accordion-trigger:hover .accordion-trigger-inner {
+      background: linear-gradient(90deg, rgba(90,90,102,0.5) 0%, rgba(42,42,46,0.9) 100%);
+    }
+
+    .accordion-icon { font-size: 1rem; flex-shrink: 0; }
+
+    .accordion-label {
+      font-family: 'Cinzel', serif; font-size: 0.72rem;
+      font-weight: 600; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--parchment-dark);
+      flex: 1;
+      transition: color 0.2s;
+    }
+    .accordion[open] .accordion-label { color: var(--gold-light); }
+
+    .accordion-badge {
+      font-family: 'Cinzel', serif; font-size: 0.58rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      background: var(--gold-dim); color: var(--gold-light);
+      border: 1px solid var(--gold-dim); border-radius: 3px;
+      padding: 2px 7px; opacity: 0;
+      transition: opacity 0.2s;
+      white-space: nowrap; max-width: 180px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .accordion:not([open]) .accordion-badge.has-value { opacity: 1; }
+
+    .accordion-chevron {
+      width: 16px; height: 16px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.25s ease;
+    }
+    .accordion-chevron::after {
+      content: '';
+      display: block; width: 7px; height: 7px;
+      border-right: 2px solid var(--gold-dim);
+      border-bottom: 2px solid var(--gold-dim);
+      transform: rotate(45deg) translate(-1px,-1px);
+      transition: border-color 0.2s;
+    }
+    .accordion[open] .accordion-chevron { transform: rotate(180deg); }
+    .accordion[open] .accordion-chevron::after { border-color: var(--gold); }
+
+    .accordion-body {
+      padding: 16px 16px 14px;
+      background: linear-gradient(160deg, rgba(38,38,45,0.97) 0%, rgba(30,30,36,0.97) 100%);
+    }
+    .accordion[open] .accordion-body {
+      animation: sweep 0.25s ease-in-out;
+    }
+    @keyframes sweep {
+      0%   { opacity: 0; transform: translateY(-8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .accordion-body > *:last-child { margin-bottom: 0; }
+    .accordion-body .mb-14:last-child { margin-bottom: 0; }
+    .accordion-body .toggle-group:last-child { margin-bottom: 0; }
+
+    /* ── Calculate button ── */
+    .calc-btn {
+      width: 100%; padding: 14px 20px;
+      background: linear-gradient(135deg, var(--blood) 0%, #6b1111 100%);
+      border: 1px solid rgba(200,146,42,0.4); border-radius: 4px;
+      color: var(--gold-light); font-family: 'Cinzel', serif;
+      font-size: 0.9rem; font-weight: 900; letter-spacing: 0.2em;
+      text-transform: uppercase; cursor: pointer; margin-top: 18px;
+      position: relative; overflow: hidden; transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(139,26,26,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .calc-btn::after {
+      content: ''; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+      transition: left 0.4s ease;
+    }
+    .calc-btn:hover::after { left: 100%; }
+    .calc-btn:hover {
+      background: linear-gradient(135deg, var(--blood-light) 0%, var(--blood) 100%);
+      box-shadow: 0 6px 24px rgba(139,26,26,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .calc-btn:active { transform: translateY(1px); }
+
+    .error-msg {
+      color: #ff6b6b; font-family: 'Cinzel', serif;
+      font-size: 0.75rem; letter-spacing: 0.08em;
+      text-align: center; margin-top: 12px; min-height: 1.2em;
+    }
+
+    /* ── Dice tags ── */
+    .dice-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 28px; }
+    .dice-tag {
+      background: var(--steel); border: 1px solid var(--gold-dim); border-radius: 3px;
+      padding: 3px 9px; font-family: 'Cinzel', serif;
+      font-size: 0.65rem; letter-spacing: 0.08em; color: var(--gold-light);
+    }
+
+    /* ── Results ── */
+    .results-panel { animation: fadeIn 0.35s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .results-title {
+      font-family: 'Cinzel', serif; font-size: 0.72rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); text-align: center; margin-bottom: 4px;
+    }
+    .results-subtitle {
+      font-family: 'Cinzel', serif; font-size: 0.6rem;
+      letter-spacing: 0.1em; color: var(--blade);
+      text-align: center; margin-bottom: 16px;
+    }
+    .table-scroll {
+      width: 100%; overflow-x: auto;
+      overscroll-behavior-x: contain;
+    }
+    table { width: 100%; min-width: 320px; border-collapse: collapse; }
+    thead tr { background: linear-gradient(90deg, var(--blood) 0%, #5a1010 100%); }
+    th {
+      font-family: 'Cinzel', serif; font-size: 0.68rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold-light); padding: 12px 16px;
+      text-align: center; white-space: nowrap;
+    }
+    td { padding: 10px 16px; text-align: center; font-size: 1rem; color: var(--parchment); border-bottom: 1px solid rgba(90,90,102,0.4); }
+    tbody tr { transition: background 0.15s; }
+    tbody tr:hover { background: rgba(200,146,42,0.07); }
+    tbody tr.tier-high td { color: var(--gold-light); }
+    tbody tr.tier-mid  td { color: var(--parchment); }
+    tbody tr.tier-low  td { color: var(--blade); }
+    .ac-cell { font-family: 'Cinzel', serif; font-weight: 600; }
+    .dmg-cell { position: relative; }
+    .dmg-bar {
+      position: absolute; left: 0; bottom: 0; height: 2px;
+      opacity: 0.5; border-radius: 0 2px 2px 0; transition: width 0.4s ease;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center; padding: 20px 0 0;
+      font-family: 'Cinzel', serif; font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--blade);
+    }
+
+    /* ── View tabs ── */
+    .view-tabs { display: flex; gap: 0; margin-bottom: 16px; border: 1px solid var(--blade); border-radius: 4px; overflow: hidden; }
+    .view-tab {
+      flex: 1; padding: 9px 10px;
+      background: var(--steel); border: none; color: var(--parchment-dark);
+      font-family: 'Cinzel', serif; font-size: 0.65rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s; border-right: 1px solid var(--blade);
+    }
+    .view-tab:last-child { border-right: none; }
+    .view-tab:hover  { background: var(--blade); color: var(--parchment); }
+    .view-tab.active { background: linear-gradient(135deg, var(--blood) 0%, #6b1111 100%); color: var(--gold-light); border-color: var(--blood); }
+    .view-pane        { display: none; }
+    .view-pane.active { display: block; }
+
+    .chart-wrap {
+      position: relative; width: 100%;
+      min-height: 220px; height: 300px; max-height: 400px;
+      padding: 8px 0;
+    }
+
+    /* ── Export bar ── */
+    .export-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .export-btn {
+      flex: 1; min-width: 120px; padding: 9px 12px;
+      background: var(--steel); border: 1px solid var(--blade); border-radius: 3px;
+      color: var(--parchment-dark); font-family: 'Cinzel', serif;
+      font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .export-btn:hover  { border-color: var(--gold); color: var(--gold-light); background: rgba(200,146,42,0.08); }
+    .export-btn:active { transform: translateY(1px); }
+    .export-btn .btn-icon { font-size: 0.9rem; }
+
+    .export-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .export-btn:disabled:hover { border-color: var(--blade); color: var(--parchment-dark); background: var(--steel); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: linear-gradient(135deg, #32323a, #26262d);
+      border: 1px solid var(--gold); border-radius: 4px;
+      color: var(--gold-light); font-family: 'Cinzel', serif;
+      font-size: 0.72rem; letter-spacing: 0.1em;
+      padding: 10px 20px; opacity: 0; pointer-events: none;
+      transition: all 0.3s ease; z-index: 999; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .panel { padding: 18px 14px 16px; }
+      .form-grid   { grid-template-columns: 1fr; }
+      .form-grid-3 { grid-template-columns: 1fr 1fr; }
+      .form-grid-3 > .form-group:nth-child(3) { grid-column: 1 / -1; }
+      .form-group.full { grid-column: auto; }
+      th, td { padding: 9px 10px; }
+      .calc-btn { font-size: 0.78rem; }
+      .export-bar { flex-direction: column; }
+      .export-btn { flex: none; width: 100%; }
+      .chart-wrap { min-height: 180px; height: 220px; }
+      .graze-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 360px) {
+      .toggle-grid { grid-template-columns: 1fr; }
+      .toggle-grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+
+</head>
+<body>
+<div class="page-wrapper">
+
+  <header class="header">
+    <div class="crest">
+      <div class="crest-line"></div>
+      <div class="crest-icon">⚔️</div>
+      <div class="crest-line"></div>
+    </div>
+    <h1>Damage Calculator</h1>
+    <p class="subtitle">Expected Damage &bull; D&amp;D 5e</p>
+  </header>
+
+
+  <div class="panel" id="input-panel">
+    <div class="panel-corners" aria-hidden="true"></div>
+
+    <!-- ── Section 1: Combat Parameters (open by default) ── -->
+    <details class="accordion" id="acc-combat" open>
+      <summary class="accordion-trigger">
+        <div class="accordion-trigger-inner">
+          <span class="accordion-icon">⚔️</span>
+          <span class="accordion-label">Combat Parameters</span>
+          <span class="accordion-badge" id="badge-combat"></span>
+          <span class="accordion-chevron" aria-hidden="true"></span>
+        </div>
+      </summary>
+      <div class="accordion-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="toHit">To Hit Bonus</label>
+            <input type="number" id="toHit" value="6" min="-5" max="20" aria-label="To hit bonus">
+          </div>
+          <div class="form-group">
+            <label for="dmgBonus">Damage Bonus</label>
+            <input type="number" id="dmgBonus" value="4" min="-10" max="30" aria-label="Damage bonus">
+          </div>
+          <div class="form-group full">
+            <label for="weaponDice">Weapon Dice</label>
+            <input type="text" id="weaponDice" value="1d8" placeholder="e.g. 1d8, 2d6, 1d4"
+                   aria-label="Weapon dice notation" maxlength="60"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="input-hint">Separate multiple dice groups with commas &mdash; e.g. 1d8, 2d6, 1d4</div>
+            <div class="dice-summary" id="dice-tags"></div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Section 2: Advanced Options ── -->
+    <details class="accordion" id="acc-advanced">
+      <summary class="accordion-trigger">
+        <div class="accordion-trigger-inner">
+          <span class="accordion-icon">⚙️</span>
+          <span class="accordion-label">Advanced Options</span>
+          <span class="accordion-badge" id="badge-advanced">Optional</span>
+          <span class="accordion-chevron" aria-hidden="true"></span>
+        </div>
+      </summary>
+      <div class="accordion-body">
+        <div class="form-grid-3 mb-14">
+          <div class="form-group">
+            <label for="numAttacks">Attacks / Turn</label>
+            <select id="numAttacks" aria-label="Number of attacks per turn">
+              <option value="1" selected>1 — Single</option>
+              <option value="2">2 — Extra Attack</option>
+              <option value="3">3 — 11th Level</option>
+              <option value="4">4 — 20th Level</option>
+            </select>
+            <div class="input-hint">Total attacks per action</div>
+          </div>
+          <div class="form-group">
+            <label for="critThreshold">Crit on a ...</label>
+            <select id="critThreshold" aria-label="Critical hit threshold">
+              <option value="20" selected>20 — Standard</option>
+              <option value="19">19–20 Champion</option>
+              <option value="18">18–20 Expanded</option>
+            </select>
+            <div class="input-hint">Champion / Hexblade</div>
+          </div>
+          <div class="form-group">
+            <label for="bonusDmgDice">Bonus Damage Dice</label>
+            <input type="text" id="bonusDmgDice" value="" placeholder="e.g. 3d6, 2d8"
+                   aria-label="Once-per-turn bonus damage dice (Sneak Attack, Divine Strike)"
+                   maxlength="60"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="input-hint">Sneak Attack / Smite (once/turn, crits doubled)</div>
+          </div>
+        </div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="extraCritDice">Extra Crit Dice</label>
+            <input type="text" id="extraCritDice" value="" placeholder="e.g. 1d12, 1d6"
+                   aria-label="Extra dice added only on a critical hit, not doubled"
+                   maxlength="60"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="input-hint">Brutal Critical / Savage Attacks &mdash; added on crit, not doubled</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Section 3: Roll Mode ── -->
+    <details class="accordion" id="acc-rollmode">
+      <summary class="accordion-trigger">
+        <div class="accordion-trigger-inner">
+          <span class="accordion-icon">🎲</span>
+          <span class="accordion-label">Roll Mode</span>
+          <span class="accordion-badge" id="badge-rollmode">Optional</span>
+          <span class="accordion-chevron" aria-hidden="true"></span>
+        </div>
+      </summary>
+      <div class="accordion-body">
+        <div class="toggle-group" style="margin-bottom:0">
+          <div class="toggle-grid" role="group" aria-label="Roll mode selection">
+
+            <label class="toggle-card" for="advantage" id="card-advantage">
+              <input type="checkbox" id="advantage" aria-label="Advantage — roll 2d20, keep highest">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">🎲</span>
+                <span class="toggle-card-name">Advantage</span>
+              </div>
+              <span class="toggle-card-desc">Roll 2d20, keep the higher result. Doubles crit chance.</span>
+            </label>
+
+            <label class="toggle-card" for="disadvantage" id="card-disadvantage">
+              <input type="checkbox" id="disadvantage" aria-label="Disadvantage — roll 2d20, keep lowest">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">💀</span>
+                <span class="toggle-card-name">Disadvantage</span>
+              </div>
+              <span class="toggle-card-desc">Roll 2d20, keep the lower result. Drastically reduces hit &amp; crit chance.</span>
+            </label>
+
+            <label class="toggle-card" for="elvenAccuracy" id="card-elvenAccuracy">
+              <input type="checkbox" id="elvenAccuracy" aria-label="Elven Accuracy — roll 3d20, keep highest (requires advantage)">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">🧝</span>
+                <span class="toggle-card-name">Elven Accuracy</span>
+              </div>
+              <span class="toggle-card-desc">Roll 3d20, keep the highest. Half-elf/elf feat — requires Advantage.</span>
+            </label>
+
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ── Section 4: Weapon Style ── -->
+    <details class="accordion" id="acc-weapon" style="margin-bottom:0">
+      <summary class="accordion-trigger">
+        <div class="accordion-trigger-inner">
+          <span class="accordion-icon">🗡️</span>
+          <span class="accordion-label">Weapon Style &amp; Mastery</span>
+          <span class="accordion-badge" id="badge-weapon">Optional</span>
+          <span class="accordion-chevron" aria-hidden="true"></span>
+        </div>
+      </summary>
+      <div class="accordion-body">
+
+        <!-- Fighting Style -->
+        <div class="toggle-group mb-14">
+          <label style="display:block;margin-bottom:8px;">Fighting Style</label>
+          <div class="toggle-grid-solo" role="group" aria-label="Weapon fighting style">
+            <label class="toggle-card" for="gwf" id="card-gwf">
+              <input type="checkbox" id="gwf" aria-label="Great Weapon Fighting — reroll weapon dice results of 1 or 2">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">⚔️</span>
+                <span class="toggle-card-name">Great Weapon Fighting</span>
+              </div>
+              <span class="toggle-card-desc">When you roll a 1 or 2 on a weapon damage die, reroll it and use the new result. Applies to weapon dice only.</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Weapon Mastery -->
+        <div class="toggle-group" style="margin-bottom:0">
+          <label style="display:block;margin-bottom:8px;">Weapon Mastery <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:0.8em;text-transform:none;letter-spacing:0;">(5.5e / 2024 Rules)</span></label>
+          <div class="toggle-grid-2" role="group" aria-label="Weapon mastery selection">
+
+            <!-- Graze toggle -->
+            <label class="toggle-card" for="graze" id="card-graze">
+              <input type="checkbox" id="graze" aria-label="Graze mastery — deal ability modifier damage on a miss">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">🛡️</span>
+                <span class="toggle-card-name">Graze</span>
+              </div>
+              <span class="toggle-card-desc">On a miss, deal damage equal to your ability modifier. Creates a reliable damage floor against high-AC targets.</span>
+              <span class="mastery-badge">Greatsword · Glaive · Halberd</span>
+            </label>
+
+            <!-- Vex toggle -->
+            <label class="toggle-card" for="vex" id="card-vex">
+              <input type="checkbox" id="vex" aria-label="Vex mastery — hitting grants advantage on your next attack">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">👁️</span>
+                <span class="toggle-card-name">Vex</span>
+              </div>
+              <span class="toggle-card-desc">Hitting a target grants Advantage on your next attack against it. Cascading advantage across multi-attack turns.</span>
+              <span class="mastery-badge">Rapier · Shortbow · Hand Crossbow</span>
+            </label>
+
+          </div>
+
+          <!-- Graze damage input — visible only when Graze is checked -->
+          <div class="graze-row" id="graze-input-row" style="display:none;">
+            <div class="form-group">
+              <label for="grazeDamage">Graze Damage (Ability Modifier)</label>
+              <input type="number" id="grazeDamage" value="4" min="0" max="10"
+                     aria-label="Ability modifier used for Graze on-miss damage">
+              <div class="input-hint">Typically your STR or DEX modifier</div>
+            </div>
+            <div class="form-group" style="justify-content:flex-end;">
+              <div style="background:rgba(139,26,26,0.12);border:1px solid rgba(139,26,26,0.3);border-radius:4px;padding:10px 12px;">
+                <div style="font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#e07070;margin-bottom:4px;">Effect</div>
+                <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:0.78rem;color:var(--parchment-dark);line-height:1.4;">Every missed attack still deals your modifier in damage. Flattens the damage curve at high AC.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </details>
+
+<button class="calc-btn" id="calc-btn" type="button" aria-label="Calculate expected damage" style="margin-top:16px">
+  ⚔ Strike &mdash; Calculate Damage
+</button>
+<div id="error-message" class="error-msg" role="alert" aria-live="polite"></div>
+
+  </div>
+
+  <div id="results-container" aria-live="polite" aria-atomic="true"></div>
+
+  <footer class="footer">⚔ &nbsp; Forged for battle &bull; D&amp;D 5e / 5.5e Rules &nbsp; ⚔</footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+        integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3oD+sCoJrzXJ+yKrayarjEQGjpN1kJ5EckIZTK2voiMRn9EVnXI9LQ=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Utility helpers ── */
+  function el(tag, attrs, text) {
+    const node = document.createElement(tag);
+    if (attrs) {
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'style' && typeof v === 'object') {
+          Object.assign(node.style, v);
+        } else {
+          node.setAttribute(k, v);
+        }
+      }
+    }
+    if (text !== undefined && text !== null) node.textContent = text;
+    return node;
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+  }
+
+  const FORMULA_CHARS = /^[=+\-@|%]/;
+  function sanitizeCell(val) {
+    const s = String(val);
+    return FORMULA_CHARS.test(s) ? "'" + s : s;
+  }
+
+  /* ── Input bounds ── */
+  const INPUT_BOUNDS = {
+    toHit:       { min: -5,  max: 20, label: 'To Hit bonus' },
+    dmgBonus:    { min: -10, max: 30, label: 'Damage bonus' },
+    grazeDamage: { min: 0,   max: 10, label: 'Graze damage' },
+  };
+
+  function parseAndClampInt(raw, boundsKey) {
+    const val = raw.trim() === '' ? NaN : parseInt(raw.trim(), 10);
+    const b   = INPUT_BOUNDS[boundsKey];
+    if (isNaN(val))  return { value: null, error: `⚠ Please enter a valid ${b.label}` };
+    if (val < b.min) return { value: null, error: `⚠ ${b.label} must be ${b.min} or higher (got ${val})` };
+    if (val > b.max) return { value: null, error: `⚠ ${b.label} must be ${b.max} or lower (got ${val})` };
+    return { value: val, error: null };
+  }
+
+  let chartInstance   = null;
+  let currentCalcData = null;
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  /* ── Dice parsing ── */
+  function parseDiceInput(str, optional, maxGroups) {
+    maxGroups = maxGroups || 10;
+    const raw = str.slice(0, 60).trim().toLowerCase();
+    if (!raw) {
+      if (optional) return { groups: [], error: null };
+      return { groups: null, error: '⚠ Please enter at least one dice group' };
+    }
+    const parts = raw.split(',');
+    if (parts.length > maxGroups) return { groups: null, error: `⚠ Maximum ${maxGroups} dice groups allowed` };
+
+    const groups     = [];
+    const groupRegex = /^(\d{1,2})d(\d{1,3})$/;
+    for (const part of parts) {
+      const trimmed = part.trim();
+      if (trimmed === '') return { groups: null, error: '⚠ Empty entry — remove trailing comma or double comma' };
+      const match = trimmed.match(groupRegex);
+      if (!match) return { groups: null, error: `⚠ Invalid group "${esc(trimmed)}" — use format XdY (e.g. 2d6)` };
+      const count = parseInt(match[1], 10);
+      const faces = parseInt(match[2], 10);
+      if (count < 1 || count > 20)  return { groups: null, error: `⚠ Dice count must be 1–20 (got ${count})` };
+      if (faces < 2 || faces > 100) return { groups: null, error: `⚠ Dice faces must be 2–100 (got d${faces})` };
+      groups.push({ count, faces });
+    }
+    if (!optional && groups.length === 0) return { groups: null, error: '⚠ No valid dice groups found' };
+    return { groups, error: null };
+  }
+
+  function totalAvgDice(groups) {
+    return groups.reduce((sum, g) => sum + g.count * ((g.faces + 1) / 2.0), 0);
+  }
+
+  /* ── GWF average: reroll 1s and 2s on a die ── */
+  function gwfAvgDie(faces) {
+    const pReroll   = 2 / faces;
+    const rerollAvg = (faces + 1) / 2;
+    const keepAvg   = (3 + faces) / 2;
+    return pReroll * rerollAvg + (1 - pReroll) * keepAvg;
+  }
+
+  function totalAvgDiceGWF(groups) {
+    return groups.reduce((sum, g) => sum + g.count * gwfAvgDie(g.faces), 0);
+  }
+
+  function updateDiceTags() {
+    const tagsDiv = document.getElementById('dice-tags');
+    while (tagsDiv.firstChild) tagsDiv.removeChild(tagsDiv.firstChild);
+    const result = parseDiceInput(document.getElementById('weaponDice').value, false);
+    if (!result.groups) return;
+    result.groups.forEach(g => {
+      tagsDiv.appendChild(el('span', { class: 'dice-tag' }, `${g.count}d${g.faces}`));
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+   * computeAttackProbs(baseMissChance, critThreshold, rollMode)
+   *
+   * Returns { missChance, critChance, normalHitChance } for a single
+   * attack given a roll mode: 'straight' | 'advantage' | 'disadvantage' | 'elven'
+   * ───────────────────────────────────────────────────────────────── */
+  function computeAttackProbs(baseMissChance, critThreshold, rollMode) {
+    let missChance, critChance;
+
+    if (rollMode === 'elven') {
+      const pBelowCrit = (critThreshold - 1) / 20.0;
+      missChance = Math.pow(baseMissChance, 3);
+      critChance = 1.0 - Math.pow(pBelowCrit, 3);
+    } else if (rollMode === 'advantage') {
+      const pBelowCrit = (critThreshold - 1) / 20.0;
+      missChance = Math.pow(baseMissChance, 2);
+      critChance = 1.0 - Math.pow(pBelowCrit, 2);
+    } else if (rollMode === 'disadvantage') {
+      const baseHitChance  = 1.0 - baseMissChance;
+      const baseCritChance = (21 - critThreshold) / 20.0;
+      missChance = 1.0 - (baseHitChance * baseHitChance);
+      critChance = baseCritChance * baseCritChance;
+    } else {
+      // straight roll
+      const baseCritChance = (21 - critThreshold) / 20.0;
+      missChance = baseMissChance;
+      critChance = baseCritChance;
+    }
+
+    missChance = Math.min(Math.max(missChance, 0.0), 1.0);
+    critChance = Math.min(critChance, Math.max(0, 1.0 - missChance));
+    const normalHitChance = Math.max(0, 1.0 - missChance - critChance);
+    return { missChance, critChance, normalHitChance };
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+   * computeVexAttackSequence
+   *
+   * Vex: hitting grants Advantage on the NEXT attack.
+   * We compute per-attack probabilities as a Markov chain:
+   *   state = whether the previous attack was a hit (giving us adv on this one).
+   *
+   * Returns array of { missChance, critChance, normalHitChance } per attack index.
+   *
+   * baseMissChance: P(miss) on a straight roll at this AC
+   * critThreshold: nat roll needed to crit (18/19/20)
+   * numAttacks: 1–4
+   * startRollMode: the base roll mode ('straight'|'advantage'|'disadvantage'|'elven')
+   *   (Vex advantage stacks with existing advantage → elven accuracy if elf,
+   *    or stays advantage if already advantage; disadvantage + vex adv = straight)
+   * ───────────────────────────────────────────────────────────────── */
+  function computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, startRollMode) {
+    // Resolve roll modes for "with Vex advantage" applied on top of base mode
+    function vexUpgrade(mode) {
+      if (mode === 'elven')       return 'elven';      // already triple-die
+      if (mode === 'advantage')   return 'elven';      // adv + vex adv → elven accuracy
+      if (mode === 'disadvantage') return 'straight';  // dis + adv = straight
+      return 'advantage';                              // straight + vex adv
+    }
+
+    const result = [];
+    // First attack uses base roll mode (no prior hit yet)
+    let pHadHit = 0.0; // probability we are in "got Vex adv" state going into this attack
+    // For attack 1 there's no prior hit, so it's always base mode
+    // For attacks 2+, we track probability of having Vex advantage
+
+    // State: pAdvState = P(this attack has Vex advantage from prior hit)
+    let pAdvState = 0.0;
+
+    for (let i = 0; i < numAttacks; i++) {
+      if (i === 0) {
+        // First attack: always base mode
+        const probs = computeAttackProbs(baseMissChance, critThreshold, startRollMode);
+        result.push(probs);
+        // P(hit) on attack 1 = critChance + normalHitChance; this gives Vex adv on attack 2
+        pAdvState = probs.critChance + probs.normalHitChance;
+      } else {
+        // This attack: mix of (pAdvState) rolling with vexUpgrade(startRollMode)
+        //              and (1 - pAdvState) rolling with startRollMode
+        const baseProbs = computeAttackProbs(baseMissChance, critThreshold, startRollMode);
+        const advProbs  = computeAttackProbs(baseMissChance, critThreshold, vexUpgrade(startRollMode));
+
+        const blended = {
+          missChance:      pAdvState * advProbs.missChance      + (1 - pAdvState) * baseProbs.missChance,
+          critChance:      pAdvState * advProbs.critChance      + (1 - pAdvState) * baseProbs.critChance,
+          normalHitChance: pAdvState * advProbs.normalHitChance + (1 - pAdvState) * baseProbs.normalHitChance,
+        };
+        result.push(blended);
+        // P(hit) on this attack → feeds next attack's Vex adv state
+        pAdvState = blended.critChance + blended.normalHitChance;
+      }
+    }
+    return result;
+  }
+
+  /* ── Core calculation ── */
+  function calculateExpectedDamage() {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = '';
+
+    const advEl          = document.getElementById('advantage');
+    const disEl          = document.getElementById('disadvantage');
+    const elvenAccEl     = document.getElementById('elvenAccuracy');
+    const gwfEl          = document.getElementById('gwf');
+    const grazeEl        = document.getElementById('graze');
+    const vexEl          = document.getElementById('vex');
+
+    const advantage      = advEl.checked;
+    const disadvantage   = disEl.checked;
+    const elvenAccuracy  = elvenAccEl.checked;
+    const gwf            = gwfEl.checked;
+    const grazeOn        = grazeEl.checked;
+    const vexOn          = vexEl.checked;
+
+    // Elven Accuracy requires advantage; auto-enforce and sync UI immediately
+    if (elvenAccuracy && !advantage) {
+      advEl.checked = true;
+      syncAllCards();
+      updateRollModeBadge();
+    }
+
+    // Vex is incompatible with Disadvantage (Vex gives adv which cancels dis — handled in math, but warn if pure dis)
+    const toHitResult    = parseAndClampInt(document.getElementById('toHit').value,    'toHit');
+    const dmgBonusResult = parseAndClampInt(document.getElementById('dmgBonus').value, 'dmgBonus');
+
+    if (toHitResult.error)    { errorDiv.textContent = toHitResult.error;    return; }
+    if (dmgBonusResult.error) { errorDiv.textContent = dmgBonusResult.error; return; }
+
+    const toHit    = toHitResult.value;
+    const dmgBonus = dmgBonusResult.value;
+
+    // Graze damage input
+    let grazeDamage = 0;
+    if (grazeOn) {
+      const grazeResult = parseAndClampInt(document.getElementById('grazeDamage').value, 'grazeDamage');
+      if (grazeResult.error) { errorDiv.textContent = grazeResult.error; return; }
+      grazeDamage = grazeResult.value;
+    }
+
+    const numAttacks    = parseInt(document.getElementById('numAttacks').value, 10);
+    const critThreshold = parseInt(document.getElementById('critThreshold').value, 10);
+
+    const parsed = parseDiceInput(document.getElementById('weaponDice').value, false);
+    if (parsed.error) { errorDiv.textContent = parsed.error; return; }
+
+    const parsedBonus = parseDiceInput(document.getElementById('bonusDmgDice').value, true, 5);
+    if (parsedBonus.error) { errorDiv.textContent = parsedBonus.error; return; }
+
+    const parsedExtraCrit = parseDiceInput(document.getElementById('extraCritDice').value, true, 5);
+    if (parsedExtraCrit.error) { errorDiv.textContent = parsedExtraCrit.error; return; }
+
+    const groups          = parsed.groups;
+    const bonusGroups     = parsedBonus.groups;
+    const extraCritGroups = parsedExtraCrit.groups;
+
+    // Weapon dice average — use GWF average if toggled
+    const avgDice      = gwf ? totalAvgDiceGWF(groups) : totalAvgDice(groups);
+    const avgBonusDice = totalAvgDice(bonusGroups);
+    const avgExtraCrit = totalAvgDice(extraCritGroups);
+
+    const normalDmg    = avgDice + dmgBonus;
+    const critDmg      = (2 * avgDice) + dmgBonus;
+    const bonusCritDmg = 2 * avgBonusDice;
+
+    // Determine base roll mode string
+    let baseRollMode = 'straight';
+    if (elvenAccuracy || (elvenAccEl.checked)) baseRollMode = 'elven';
+    else if (advantage) baseRollMode = 'advantage';
+    else if (disadvantage) baseRollMode = 'disadvantage';
+
+    const diceLabel  = groups.map(g => `${g.count}d${g.faces}`).join(' + ');
+    const bonusLabel = bonusGroups.length     ? ` + ${bonusGroups.map(g => `${g.count}d${g.faces}`).join('+')} bonus` : '';
+    const extraLabel = extraCritGroups.length ? ` + ${extraCritGroups.map(g => `${g.count}d${g.faces}`).join('+')} crit` : '';
+
+    const rows = [];
+    for (let ac = 10; ac <= 20; ac++) {
+      let targetRoll = ac - toHit;
+      if (targetRoll < 2)  targetRoll = 2;
+      if (targetRoll > 20) targetRoll = 20;
+
+      const baseMissChance = (targetRoll - 1) / 20.0;
+
+      // ── Build per-attack probability array ──
+      let attackProbs; // array of { missChance, critChance, normalHitChance }
+
+      if (vexOn && numAttacks > 1) {
+        // Vex: use Markov chain to model cascading advantage
+        attackProbs = computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, baseRollMode);
+      } else {
+        // Uniform: same probabilities for all attacks
+        const probs = computeAttackProbs(baseMissChance, critThreshold, baseRollMode);
+        attackProbs = Array(numAttacks).fill(probs);
+      }
+
+      // ── Weapon damage: sum per attack ──
+      let totalWeaponExpected = 0;
+      for (let i = 0; i < numAttacks; i++) {
+        const p = attackProbs[i];
+        // normal hit damage + crit damage (weapon dice doubled + extra crit)
+        // + Graze: miss still deals grazeDamage
+        const attackExpected = (p.normalHitChance * normalDmg)
+                             + (p.critChance * (critDmg + avgExtraCrit))
+                             + (grazeOn ? p.missChance * grazeDamage : 0);
+        totalWeaponExpected += attackExpected;
+      }
+
+      // ── Bonus dice (Sneak Attack / Smite): once per turn on first hit ──
+      // With Vex we need to recalculate "P(at least one hit)" and "P(at least one crit)"
+      // across all attacks using the actual per-attack probs.
+      // P(all miss across all attacks) = product of all individual missChances
+      let pAllMiss = 1.0;
+      for (let i = 0; i < numAttacks; i++) pAllMiss *= attackProbs[i].missChance;
+      const pAtLeastOneHit = 1.0 - pAllMiss;
+
+      // P(all non-crit across all attacks) = product of (1 - critChance)
+      let pAllNonCrit = 1.0;
+      for (let i = 0; i < numAttacks; i++) pAllNonCrit *= (1.0 - attackProbs[i].critChance);
+      const pAtLeastOneCrit = 1.0 - pAllNonCrit;
+
+      const pBonusNormalHit = Math.max(0, pAtLeastOneHit - pAtLeastOneCrit);
+      const expectedBonus   = (pBonusNormalHit * avgBonusDice) + (pAtLeastOneCrit * bonusCritDmg);
+
+      const totalExpected = totalWeaponExpected + expectedBonus;
+
+      // Per-attack value shown in table: average weapon expected / numAttacks
+      // (represents single-attack contribution for comparison)
+      const singleExpectedWeapon = totalWeaponExpected / numAttacks;
+
+      rows.push({ ac, totalExpected, singleExpectedWeapon });
+    }
+
+    const maxExpected = rows.reduce((m, r) => Math.max(m, r.totalExpected), 0);
+
+    const bonusStr     = dmgBonus >= 0 ? ` + ${dmgBonus}` : ` ${dmgBonus}`;
+    const modeLabel    = elvenAccuracy ? ' · Elven Accuracy' : (advantage ? ' · Advantage' : (disadvantage ? ' · Disadvantage' : ''));
+    const gwfLabel     = gwf ? ' · GWF' : '';
+    const grazeLabel   = grazeOn ? ` · Graze +${grazeDamage}` : '';
+    const vexLabel     = vexOn ? ' · Vex' : '';
+    const attacksLabel = `${numAttacks} attack${numAttacks > 1 ? 's' : ''}/turn`;
+    const critLabel    = critThreshold < 20 ? ` · Crit ${critThreshold}–20` : '';
+
+    currentCalcData = { rows, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel, maxExpected };
+    renderResults(rows, maxExpected, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel);
+  }
+
+  /* ── Render results ── */
+  function renderResults(rows, maxExpected, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel) {
+    const resultsDiv = document.getElementById('results-container');
+
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    while (resultsDiv.firstChild) resultsDiv.removeChild(resultsDiv.firstChild);
+
+    const panel = el('div', { class: 'panel results-panel' });
+    const panelCorners = el('div', { class: 'panel-corners', 'aria-hidden': 'true' });
+    panel.appendChild(panelCorners);
+
+    panel.appendChild(el('div', { class: 'results-title'    }, `⚔ Total Turn Damage`));
+    panel.appendChild(el('div', { class: 'results-subtitle' },
+      `${diceLabel}${bonusStr}${bonusLabel}${extraLabel} · ${attacksLabel}${modeLabel}${gwfLabel}${grazeLabel}${vexLabel}${critLabel}`));
+
+    const tabBar   = el('div',    { class: 'view-tabs', role: 'tablist' });
+    const tabTable = el('button', { class: 'view-tab active', 'data-tab': 'table', role: 'tab', type: 'button', 'aria-selected': 'true',  'aria-controls': 'pane-table' }, '📋 Table');
+    const tabChart = el('button', { class: 'view-tab',        'data-tab': 'chart', role: 'tab', type: 'button', 'aria-selected': 'false', 'aria-controls': 'pane-chart' }, '📈 Graph');
+    tabBar.appendChild(tabTable);
+    tabBar.appendChild(tabChart);
+    panel.appendChild(tabBar);
+
+    /* Table pane */
+    const paneTable = el('div', { class: 'view-pane active', id: 'pane-table', role: 'tabpanel' });
+    const scroll    = el('div', { class: 'table-scroll' });
+    const table     = el('table', { role: 'table', 'aria-label': 'Expected damage by armor class' });
+    const thead     = el('thead');
+    const headerRow = el('tr');
+    ['AC', 'Turn Damage', 'Per Attack', 'Power'].forEach(h => {
+      headerRow.appendChild(el('th', { scope: 'col' }, h));
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = el('tbody');
+    for (const row of rows) {
+      const barWidth  = maxExpected > 0 ? (row.totalExpected / maxExpected) * 100 : 0;
+      const tierClass = barWidth > 65 ? 'tier-high' : (barWidth > 35 ? 'tier-mid' : 'tier-low');
+      const barColor  = barWidth > 65
+        ? 'linear-gradient(90deg,var(--gold-dim),var(--gold-light))'
+        : (barWidth > 35
+            ? 'linear-gradient(90deg,var(--blood),var(--gold-dim))'
+            : 'linear-gradient(90deg,var(--steel),var(--blade))');
+
+      const tr = el('tr', { class: tierClass });
+      tr.appendChild(el('td', { class: 'ac-cell' }, String(row.ac)));
+
+      const dmgCell = el('td', { class: 'dmg-cell', style: { position: 'relative', paddingBottom: '12px' } },
+        row.totalExpected.toFixed(2));
+      const bar = el('div', { class: 'dmg-bar' });
+      bar.style.width      = barWidth.toFixed(1) + '%';
+      bar.style.background = barColor;
+      dmgCell.appendChild(bar);
+      tr.appendChild(dmgCell);
+
+      tr.appendChild(el('td', {}, row.singleExpectedWeapon.toFixed(2)));
+
+      const powerCell  = el('td');
+      const powerOuter = el('div', { style: { background: 'rgba(255,255,255,0.06)', borderRadius: '2px', height: '8px', overflow: 'hidden' } });
+      const powerInner = el('div');
+      Object.assign(powerInner.style, {
+        height: '100%', width: barWidth.toFixed(1) + '%',
+        background: barColor, borderRadius: '2px', transition: 'width 0.4s ease'
+      });
+      powerOuter.appendChild(powerInner);
+      powerCell.appendChild(powerOuter);
+      tr.appendChild(powerCell);
+
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    scroll.appendChild(table);
+    paneTable.appendChild(scroll);
+    panel.appendChild(paneTable);
+
+    /* Chart pane */
+    const paneChart = el('div', { class: 'view-pane', id: 'pane-chart', role: 'tabpanel' });
+    const chartWrap = el('div', { class: 'chart-wrap' });
+    chartWrap.appendChild(el('canvas', { id: 'dmg-chart', 'aria-label': 'Expected damage line chart' }));
+    paneChart.appendChild(chartWrap);
+    panel.appendChild(paneChart);
+
+    const exportBar = el('div', { class: 'export-bar' });
+
+    const btnTSV = el('button', { class: 'export-btn', id: 'export-tsv', type: 'button' });
+    btnTSV.appendChild(el('span', { class: 'btn-icon' }, '📄'));
+    btnTSV.appendChild(document.createTextNode(' Copy as TSV'));
+
+    const btnCSV = el('button', { class: 'export-btn', id: 'export-csv', type: 'button' });
+    btnCSV.appendChild(el('span', { class: 'btn-icon' }, '📊'));
+    btnCSV.appendChild(document.createTextNode(' Copy as CSV'));
+
+    const btnImg = el('button', { class: 'export-btn', id: 'export-img', type: 'button', 'aria-label': 'Copy chart as image', title: 'Copy chart as PNG image' });
+    btnImg.appendChild(el('span', { class: 'btn-icon' }, '🖼️'));
+    btnImg.appendChild(document.createTextNode(' Copy Chart Image'));
+
+    exportBar.appendChild(btnTSV);
+    exportBar.appendChild(btnCSV);
+    exportBar.appendChild(btnImg);
+    panel.appendChild(exportBar);
+
+    resultsDiv.appendChild(panel);
+
+    bindTabListeners(tabTable, tabChart, paneTable, paneChart);
+    bindExportListeners();
+    renderChart(rows, modeLabel, critLabel, grazeLabel, vexLabel);
+  }
+
+  /* ── Tab switching ── */
+  function bindTabListeners(tabTable, tabChart, paneTable, paneChart) {
+    const tabs  = [tabTable, tabChart];
+    const panes = [paneTable, paneChart];
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t  => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+        panes.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        panes[i].classList.add('active');
+        if (tab === tabChart && chartInstance) chartInstance.resize();
+      });
+    });
+  }
+
+  /* ── Export listeners ── */
+  function bindExportListeners() {
+    document.getElementById('export-tsv').addEventListener('click', () => {
+      if (!currentCalcData) return;
+      const { rows, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel } = currentCalcData;
+      const header = 'AC\tTurn Damage\tPer Attack';
+      const body   = rows.map(r =>
+        `${sanitizeCell(r.ac)}\t${sanitizeCell(r.totalExpected.toFixed(2))}\t${sanitizeCell(r.singleExpectedWeapon.toFixed(2))}`
+      ).join('\n');
+      const meta = `# D&D Damage — ${sanitizeCell(diceLabel)}${sanitizeCell(bonusStr)}${sanitizeCell(bonusLabel)}${sanitizeCell(extraLabel)} · ${sanitizeCell(attacksLabel)}${sanitizeCell(modeLabel)}${sanitizeCell(gwfLabel)}${sanitizeCell(grazeLabel)}${sanitizeCell(vexLabel)}${sanitizeCell(critLabel)}`;
+      copyText(`${meta}\n${header}\n${body}`);
+      showToast('✦ TSV copied — paste into Excel, Sheets, or Word');
+    });
+
+    document.getElementById('export-csv').addEventListener('click', () => {
+      if (!currentCalcData) return;
+      const { rows, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel } = currentCalcData;
+      const header = 'AC,Turn Damage,Per Attack';
+      const body   = rows.map(r =>
+        `${sanitizeCell(r.ac)},${sanitizeCell(r.totalExpected.toFixed(2))},${sanitizeCell(r.singleExpectedWeapon.toFixed(2))}`
+      ).join('\n');
+      const meta = `# D&D Damage — ${sanitizeCell(diceLabel)}${sanitizeCell(bonusStr)}${sanitizeCell(bonusLabel)}${sanitizeCell(extraLabel)} · ${sanitizeCell(attacksLabel)}${sanitizeCell(modeLabel)}${sanitizeCell(gwfLabel)}${sanitizeCell(grazeLabel)}${sanitizeCell(vexLabel)}${sanitizeCell(critLabel)}`;
+      copyText(`${meta}\n${header}\n${body}`);
+      showToast('✦ CSV copied to clipboard');
+    });
+
+    document.getElementById('export-img').addEventListener('click', () => {
+      if (!currentCalcData) return;
+      if (typeof Chart === 'undefined') { showToast('⚠ Graph is unavailable'); return; }
+
+      const paneChart = document.getElementById('pane-chart');
+      const paneTable = document.getElementById('pane-table');
+      const tabChart  = document.querySelector('[data-tab="chart"]');
+      const tabTable  = document.querySelector('[data-tab="table"]');
+      const wasHidden = !paneChart.classList.contains('active');
+      if (wasHidden) {
+        if (paneTable) paneTable.classList.remove('active');
+        if (tabTable)  { tabTable.classList.remove('active'); tabTable.setAttribute('aria-selected', 'false'); }
+        paneChart.classList.add('active');
+        if (tabChart)  { tabChart.classList.add('active'); tabChart.setAttribute('aria-selected', 'true'); }
+      }
+
+      const canvas = document.getElementById('dmg-chart');
+      if (!canvas) { showToast('⚠ Chart canvas not found'); return; }
+      if (chartInstance) chartInstance.resize();
+
+      try {
+        if (navigator.clipboard && window.ClipboardItem) {
+          const blobPromise = new Promise((resolve, reject) => {
+            canvas.toBlob(blob => {
+              if (blob) resolve(blob);
+              else reject(new Error('Canvas toBlob failed'));
+            });
+          });
+
+          const item = new ClipboardItem({ 'image/png': blobPromise });
+          navigator.clipboard.write([item])
+            .then(() => showToast('✦ Chart image copied to clipboard'))
+            .catch(err => {
+              console.warn('Clipboard write failed, downloading instead:', err);
+              showToast('⚠ Clipboard blocked — downloading as PNG');
+              blobPromise.then(b => downloadFallback(b));
+            });
+        } else {
+          showToast('⚠ Copy not supported — downloading as PNG');
+          canvas.toBlob(blob => {
+            if (blob) downloadFallback(blob);
+            else showToast('⚠ Could not generate image');
+          });
+        }
+      } catch (err) {
+        showToast('⚠ Error — downloading as PNG');
+        console.warn('Clipboard image error:', err);
+        canvas.toBlob(blob => {
+          if (blob) downloadFallback(blob);
+        });
+      }
+    });
+  }
+
+  function downloadFallback(blob) {
+    const url = URL.createObjectURL(blob);
+    const a   = el('a', { href: url, download: 'dnd-damage-chart.png' });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✦ Chart downloaded as PNG');
+  }
+
+  /* ── Chart rendering ── */
+  function renderChart(rows, modeLabel, critLabel, grazeLabel, vexLabel) {
+    const canvas = document.getElementById('dmg-chart');
+    if (!canvas) return;
+
+    if (typeof Chart === 'undefined') {
+      const chartWrap = canvas.parentElement;
+      chartWrap.removeChild(canvas);
+      const errMsg = el('div', {
+        style: { color: 'var(--blade)', textAlign: 'center', paddingTop: '80px', fontFamily: "'Cinzel', serif", fontSize: '0.75rem' }
+      }, 'Graph unavailable (Chart.js blocked or failed to load).');
+      chartWrap.appendChild(errMsg);
+      return;
+    }
+
+    const labels   = rows.map(r => `AC ${r.ac}`);
+    const turnData = rows.map(r => parseFloat(r.totalExpected.toFixed(2)));
+    const perAtk   = rows.map(r => parseFloat(r.singleExpectedWeapon.toFixed(2)));
+
+    chartInstance = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Turn Damage', data: turnData, borderColor: '#e8b84b',
+            backgroundColor: 'rgba(200,146,42,0.12)', borderWidth: 2.5,
+            pointBackgroundColor: '#e8b84b', pointRadius: 4, pointHoverRadius: 6,
+            tension: 0.35, fill: true
+          },
+          {
+            label: 'Per Attack', data: perAtk, borderColor: '#c0392b',
+            backgroundColor: 'rgba(139,26,26,0.08)', borderWidth: 2,
+            pointBackgroundColor: '#c0392b', pointRadius: 3, pointHoverRadius: 5,
+            tension: 0.35, fill: true, borderDash: [5, 4]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 0 },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#d4c49a',
+              font: { family: "'Cinzel', serif", size: 11 },
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: '#26262d', borderColor: '#5a5a66', borderWidth: 1,
+            titleColor: '#e8b84b', bodyColor: '#f0e6cc',
+            titleFont: { family: "'Cinzel', serif", size: 11 },
+            bodyFont:  { family: "'IM Fell English', serif", size: 12 }
+          }
+        },
+        scales: {
+          x: {
+            grid:  { color: 'rgba(90,90,102,0.3)' },
+            ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } }
+          },
+          y: {
+            grid:  { color: 'rgba(90,90,102,0.3)' },
+            ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } },
+            title: { display: true, text: 'Expected Damage', color: '#7a5518', font: { family: "'Cinzel', serif", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  /* ── Clipboard helpers ── */
+  function copyText(str) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(str).catch(() => fallbackCopyText(str));
+    } else {
+      fallbackCopyText(str);
+    }
+  }
+
+  function fallbackCopyText(str) {
+    const ta = document.createElement('textarea');
+    ta.value = str;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+    } catch (e) {
+      showToast('⚠ Copy failed — please copy manually');
+      console.warn('execCommand copy failed:', e);
+    }
+    document.body.removeChild(ta);
+  }
+
+  /* ── Card visual sync helper ── */
+  function syncCard(checkbox) {
+    const card = checkbox.closest('.toggle-card');
+    if (!card) return;
+    if (checkbox.checked) {
+      card.classList.add('is-checked');
+    } else {
+      card.classList.remove('is-checked');
+    }
+  }
+
+  function syncAllCards() {
+    document.querySelectorAll('.toggle-card input[type="checkbox"]').forEach(syncCard);
+  }
+
+  /* ── Graze input row visibility ── */
+  function syncGrazeRow() {
+    const row = document.getElementById('graze-input-row');
+    if (row) {
+      row.style.display = document.getElementById('graze').checked ? 'grid' : 'none';
+    }
+  }
+
+  /* ── Accordion badge updaters ── */
+  function setBadge(id, text) {
+    const b = document.getElementById(id);
+    if (!b) return;
+    if (text) {
+      b.textContent = text;
+      b.classList.add('has-value');
+    } else {
+      b.textContent = 'Optional';
+      b.classList.remove('has-value');
+    }
+  }
+
+  function updateCombatBadge() {
+    const toHit    = document.getElementById('toHit').value.trim();
+    const dmgBonus = document.getElementById('dmgBonus').value.trim();
+    const dice     = document.getElementById('weaponDice').value.trim();
+    const sign     = parseInt(dmgBonus, 10) >= 0 ? '+' : '';
+    setBadge('badge-combat', dice ? `${dice} ${sign}${dmgBonus} / +${toHit} to hit` : null);
+  }
+
+  function updateAdvancedBadge() {
+    const attacks   = document.getElementById('numAttacks').value;
+    const crit      = document.getElementById('critThreshold').value;
+    const bonus     = document.getElementById('bonusDmgDice').value.trim();
+    const extraCrit = document.getElementById('extraCritDice').value.trim();
+    const parts = [];
+    if (attacks !== '1') parts.push(`${attacks} attacks`);
+    if (crit   !== '20') parts.push(`crit ${crit}–20`);
+    if (bonus)           parts.push(`+${bonus} bonus`);
+    if (extraCrit)       parts.push(`+${extraCrit} crit`);
+    setBadge('badge-advanced', parts.length ? parts.join(' · ') : null);
+  }
+
+  function updateRollModeBadge() {
+    const adv = document.getElementById('advantage').checked;
+    const dis = document.getElementById('disadvantage').checked;
+    const elv = document.getElementById('elvenAccuracy').checked;
+    const label = elv ? 'Elven Accuracy' : adv ? 'Advantage' : dis ? 'Disadvantage' : null;
+    setBadge('badge-rollmode', label);
+  }
+
+  function updateWeaponBadge() {
+    const gwf   = document.getElementById('gwf').checked;
+    const graze = document.getElementById('graze').checked;
+    const vex   = document.getElementById('vex').checked;
+    const parts = [];
+    if (gwf)   parts.push('GWF');
+    if (graze) parts.push('Graze');
+    if (vex)   parts.push('Vex');
+    setBadge('badge-weapon', parts.length ? parts.join(' · ') : null);
+  }
+
+  function updateAllBadges() {
+    updateCombatBadge();
+    updateAdvancedBadge();
+    updateRollModeBadge();
+    updateWeaponBadge();
+  }
+
+  /* ── Advantage / Disadvantage / Elven Accuracy mutex ── */
+  function setupToggleMutex() {
+    const adv  = document.getElementById('advantage');
+    const dis  = document.getElementById('disadvantage');
+    const elv  = document.getElementById('elvenAccuracy');
+    const gwf  = document.getElementById('gwf');
+    const graze = document.getElementById('graze');
+    const vex  = document.getElementById('vex');
+
+    adv.addEventListener('change', () => {
+      if (adv.checked) dis.checked = false;
+      if (!adv.checked) elv.checked = false;
+      syncAllCards();
+      updateRollModeBadge();
+    });
+    dis.addEventListener('change', () => {
+      if (dis.checked) { adv.checked = false; elv.checked = false; }
+      syncAllCards();
+      updateRollModeBadge();
+    });
+    elv.addEventListener('change', () => {
+      if (elv.checked) { adv.checked = true; dis.checked = false; }
+      syncAllCards();
+      updateRollModeBadge();
+    });
+    gwf.addEventListener('change', () => {
+      syncCard(gwf);
+      updateWeaponBadge();
+    });
+    graze.addEventListener('change', () => {
+      syncCard(graze);
+      syncGrazeRow();
+      updateWeaponBadge();
+    });
+    vex.addEventListener('change', () => {
+      syncCard(vex);
+      updateWeaponBadge();
+    });
+  }
+
+  /* ── Boot ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('weaponDice').addEventListener('input', () => { updateDiceTags(); updateCombatBadge(); });
+    document.getElementById('toHit').addEventListener('input', updateCombatBadge);
+    document.getElementById('dmgBonus').addEventListener('input', updateCombatBadge);
+    document.getElementById('numAttacks').addEventListener('change', updateAdvancedBadge);
+    document.getElementById('critThreshold').addEventListener('change', updateAdvancedBadge);
+    document.getElementById('bonusDmgDice').addEventListener('input', updateAdvancedBadge);
+    document.getElementById('extraCritDice').addEventListener('input', updateAdvancedBadge);
+    document.getElementById('grazeDamage').addEventListener('input', updateCombatBadge);
+    document.getElementById('calc-btn').addEventListener('click', calculateExpectedDamage);
+    setupToggleMutex();
+    syncAllCards();
+    syncGrazeRow();
+    updateAllBadges();
+    updateDiceTags();
+    calculateExpectedDamage();
+  });
+
+}());
+</script>
+</body>
+</html>
