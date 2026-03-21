@@ -507,7 +507,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
   <div class="panel" id="input-panel">
     <div class="panel-corners" aria-hidden="true"></div>
 
-    <!-- ── Section 1: Combat Parameters (open by default) ── -->
     <details class="accordion" id="acc-combat" open>
       <summary class="accordion-trigger">
         <div class="accordion-trigger-inner">
@@ -539,7 +538,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       </div>
     </details>
 
-    <!-- ── Section 2: Advanced Options ── -->
     <details class="accordion" id="acc-advanced">
       <summary class="accordion-trigger">
         <div class="accordion-trigger-inner">
@@ -592,7 +590,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       </div>
     </details>
 
-    <!-- ── Section 3: Roll Mode ── -->
     <details class="accordion" id="acc-rollmode">
       <summary class="accordion-trigger">
         <div class="accordion-trigger-inner">
@@ -627,13 +624,13 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
             </label>
 
             <label class="toggle-card" for="elvenAccuracy" id="card-elvenAccuracy">
-              <input type="checkbox" id="elvenAccuracy" aria-label="Elven Accuracy — roll 3d20, keep highest (requires advantage)">
+              <input type="checkbox" id="elvenAccuracy" aria-label="Elven Accuracy — upgrades Advantage into a triple-roll">
               <div class="toggle-card-pip" aria-hidden="true"></div>
               <div class="toggle-card-header">
                 <span class="toggle-card-icon">🧝</span>
                 <span class="toggle-card-name">Elven Accuracy</span>
               </div>
-              <span class="toggle-card-desc">Roll 3d20, keep the highest. Half-elf/elf feat — requires Advantage.</span>
+              <span class="toggle-card-desc">Upgrades Advantage into a triple-roll. Half-elf/elf feat — only triggers when you have Advantage.</span>
             </label>
 
           </div>
@@ -641,7 +638,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       </div>
     </details>
 
-    <!-- ── Section 4: Weapon Style ── -->
     <details class="accordion" id="acc-weapon" style="margin-bottom:0">
       <summary class="accordion-trigger">
         <div class="accordion-trigger-inner">
@@ -653,7 +649,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       </summary>
       <div class="accordion-body">
 
-        <!-- Fighting Style -->
         <div class="toggle-group mb-14">
           <label style="display:block;margin-bottom:8px;">Fighting Style</label>
           <div class="toggle-grid-solo" role="group" aria-label="Weapon fighting style">
@@ -669,12 +664,10 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
           </div>
         </div>
 
-        <!-- Weapon Mastery -->
         <div class="toggle-group" style="margin-bottom:0">
           <label style="display:block;margin-bottom:8px;">Weapon Mastery <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:0.8em;text-transform:none;letter-spacing:0;">(5.5e / 2024 Rules)</span></label>
           <div class="toggle-grid-2" role="group" aria-label="Weapon mastery selection">
 
-            <!-- Graze toggle -->
             <label class="toggle-card" for="graze" id="card-graze">
               <input type="checkbox" id="graze" aria-label="Graze mastery — deal ability modifier damage on a miss">
               <div class="toggle-card-pip" aria-hidden="true"></div>
@@ -686,7 +679,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
               <span class="mastery-badge">Greatsword · Glaive · Halberd</span>
             </label>
 
-            <!-- Vex toggle -->
             <label class="toggle-card" for="vex" id="card-vex">
               <input type="checkbox" id="vex" aria-label="Vex mastery — hitting grants advantage on your next attack">
               <div class="toggle-card-pip" aria-hidden="true"></div>
@@ -700,7 +692,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
           </div>
 
-          <!-- Graze damage input — visible only when Graze is checked -->
           <div class="graze-row" id="graze-input-row" style="display:none;">
             <div class="form-group">
               <label for="grazeDamage">Graze Damage (Ability Modifier)</label>
@@ -856,23 +847,29 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
   }
 
   /* ─────────────────────────────────────────────────────────────────
-   * computeAttackProbs(baseMissChance, critThreshold, rollMode)
+   * computeAttackProbs(baseMissChance, critThreshold, rollMode, hasElvenAccuracy)
    *
-   * Returns { missChance, critChance, normalHitChance } for a single
-   * attack given a roll mode: 'straight' | 'advantage' | 'disadvantage' | 'elven'
+   * NEW: Added hasElvenAccuracy flag. If true, and the rollMode is
+   * 'advantage', it internally upgrades the calculation to 'elven'.
    * ───────────────────────────────────────────────────────────────── */
-  function computeAttackProbs(baseMissChance, critThreshold, rollMode) {
+  function computeAttackProbs(baseMissChance, critThreshold, rollMode, hasElvenAccuracy) {
     let missChance, critChance;
+    
+    /* NEW: Upgrade logic */
+    let effectiveMode = rollMode;
+    if (hasElvenAccuracy && rollMode === 'advantage') {
+      effectiveMode = 'elven';
+    }
 
-    if (rollMode === 'elven') {
+    if (effectiveMode === 'elven') {
       const pBelowCrit = (critThreshold - 1) / 20.0;
       missChance = Math.pow(baseMissChance, 3);
       critChance = 1.0 - Math.pow(pBelowCrit, 3);
-    } else if (rollMode === 'advantage') {
+    } else if (effectiveMode === 'advantage') {
       const pBelowCrit = (critThreshold - 1) / 20.0;
       missChance = Math.pow(baseMissChance, 2);
       critChance = 1.0 - Math.pow(pBelowCrit, 2);
-    } else if (rollMode === 'disadvantage') {
+    } else if (effectiveMode === 'disadvantage') {
       const baseHitChance  = 1.0 - baseMissChance;
       const baseCritChance = (21 - critThreshold) / 20.0;
       missChance = 1.0 - (baseHitChance * baseHitChance);
@@ -893,49 +890,34 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
   /* ─────────────────────────────────────────────────────────────────
    * computeVexAttackSequence
    *
-   * Vex: hitting grants Advantage on the NEXT attack.
-   * We compute per-attack probabilities as a Markov chain:
-   *   state = whether the previous attack was a hit (giving us adv on this one).
-   *
-   * Returns array of { missChance, critChance, normalHitChance } per attack index.
-   *
-   * baseMissChance: P(miss) on a straight roll at this AC
-   * critThreshold: nat roll needed to crit (18/19/20)
-   * numAttacks: 1–4
-   * startRollMode: the base roll mode ('straight'|'advantage'|'disadvantage'|'elven')
-   *   (Vex advantage stacks with existing advantage → elven accuracy if elf,
-   *    or stays advantage if already advantage; disadvantage + vex adv = straight)
+   * NEW: Accepts hasElvenAccuracy to properly process Advantage upgrades 
+   * throughout the Vex attack chain.
    * ───────────────────────────────────────────────────────────────── */
-  function computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, startRollMode) {
-    // Resolve roll modes for "with Vex advantage" applied on top of base mode
+  function computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, startRollMode, hasElvenAccuracy) {
+    
+    /* NEW: Corrected Vex upgrade path */
     function vexUpgrade(mode) {
-      if (mode === 'elven')       return 'elven';      // already triple-die
-      if (mode === 'advantage')   return 'elven';      // adv + vex adv → elven accuracy
-      if (mode === 'disadvantage') return 'straight';  // dis + adv = straight
-      return 'advantage';                              // straight + vex adv
+      if (mode === 'elven')        return 'elven';
+      if (mode === 'advantage')    return hasElvenAccuracy ? 'elven' : 'advantage';
+      if (mode === 'disadvantage') return 'straight'; // dis + adv = straight, no Elven Accuracy
+      return hasElvenAccuracy ? 'elven' : 'advantage'; // straight -> advantage granted by Vex
     }
 
     const result = [];
-    // First attack uses base roll mode (no prior hit yet)
-    let pHadHit = 0.0; // probability we are in "got Vex adv" state going into this attack
-    // For attack 1 there's no prior hit, so it's always base mode
-    // For attacks 2+, we track probability of having Vex advantage
-
-    // State: pAdvState = P(this attack has Vex advantage from prior hit)
-    let pAdvState = 0.0;
+    let pAdvState = 0.0; // P(this attack has Vex advantage from prior hit)
 
     for (let i = 0; i < numAttacks; i++) {
       if (i === 0) {
         // First attack: always base mode
-        const probs = computeAttackProbs(baseMissChance, critThreshold, startRollMode);
+        const probs = computeAttackProbs(baseMissChance, critThreshold, startRollMode, hasElvenAccuracy);
         result.push(probs);
         // P(hit) on attack 1 = critChance + normalHitChance; this gives Vex adv on attack 2
         pAdvState = probs.critChance + probs.normalHitChance;
       } else {
         // This attack: mix of (pAdvState) rolling with vexUpgrade(startRollMode)
         //              and (1 - pAdvState) rolling with startRollMode
-        const baseProbs = computeAttackProbs(baseMissChance, critThreshold, startRollMode);
-        const advProbs  = computeAttackProbs(baseMissChance, critThreshold, vexUpgrade(startRollMode));
+        const baseProbs = computeAttackProbs(baseMissChance, critThreshold, startRollMode, hasElvenAccuracy);
+        const advProbs  = computeAttackProbs(baseMissChance, critThreshold, vexUpgrade(startRollMode), hasElvenAccuracy);
 
         const blended = {
           missChance:      pAdvState * advProbs.missChance      + (1 - pAdvState) * baseProbs.missChance,
@@ -969,14 +951,8 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     const grazeOn        = grazeEl.checked;
     const vexOn          = vexEl.checked;
 
-    // Elven Accuracy requires advantage; auto-enforce and sync UI immediately
-    if (elvenAccuracy && !advantage) {
-      advEl.checked = true;
-      syncAllCards();
-      updateRollModeBadge();
-    }
+    /* NEW: Removed the block that forced `advantage` to true if Elven Accuracy was checked */
 
-    // Vex is incompatible with Disadvantage (Vex gives adv which cancels dis — handled in math, but warn if pure dis)
     const toHitResult    = parseAndClampInt(document.getElementById('toHit').value,    'toHit');
     const dmgBonusResult = parseAndClampInt(document.getElementById('dmgBonus').value, 'dmgBonus');
 
@@ -1019,10 +995,9 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     const critDmg      = (2 * avgDice) + dmgBonus;
     const bonusCritDmg = 2 * avgBonusDice;
 
-    // Determine base roll mode string
+    /* NEW: Derive baseRollMode purely from Advantage/Disadvantage toggles */
     let baseRollMode = 'straight';
-    if (elvenAccuracy || (elvenAccEl.checked)) baseRollMode = 'elven';
-    else if (advantage) baseRollMode = 'advantage';
+    if (advantage) baseRollMode = 'advantage';
     else if (disadvantage) baseRollMode = 'disadvantage';
 
     const diceLabel  = groups.map(g => `${g.count}d${g.faces}`).join(' + ');
@@ -1037,15 +1012,14 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
       const baseMissChance = (targetRoll - 1) / 20.0;
 
-      // ── Build per-attack probability array ──
       let attackProbs; // array of { missChance, critChance, normalHitChance }
 
       if (vexOn && numAttacks > 1) {
-        // Vex: use Markov chain to model cascading advantage
-        attackProbs = computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, baseRollMode);
+        /* NEW: Passing elvenAccuracy parameter */
+        attackProbs = computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, baseRollMode, elvenAccuracy);
       } else {
-        // Uniform: same probabilities for all attacks
-        const probs = computeAttackProbs(baseMissChance, critThreshold, baseRollMode);
+        /* NEW: Passing elvenAccuracy parameter */
+        const probs = computeAttackProbs(baseMissChance, critThreshold, baseRollMode, elvenAccuracy);
         attackProbs = Array(numAttacks).fill(probs);
       }
 
@@ -1053,8 +1027,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       let totalWeaponExpected = 0;
       for (let i = 0; i < numAttacks; i++) {
         const p = attackProbs[i];
-        // normal hit damage + crit damage (weapon dice doubled + extra crit)
-        // + Graze: miss still deals grazeDamage
         const attackExpected = (p.normalHitChance * normalDmg)
                              + (p.critChance * (critDmg + avgExtraCrit))
                              + (grazeOn ? p.missChance * grazeDamage : 0);
@@ -1062,14 +1034,10 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       }
 
       // ── Bonus dice (Sneak Attack / Smite): once per turn on first hit ──
-      // With Vex we need to recalculate "P(at least one hit)" and "P(at least one crit)"
-      // across all attacks using the actual per-attack probs.
-      // P(all miss across all attacks) = product of all individual missChances
       let pAllMiss = 1.0;
       for (let i = 0; i < numAttacks; i++) pAllMiss *= attackProbs[i].missChance;
       const pAtLeastOneHit = 1.0 - pAllMiss;
 
-      // P(all non-crit across all attacks) = product of (1 - critChance)
       let pAllNonCrit = 1.0;
       for (let i = 0; i < numAttacks; i++) pAllNonCrit *= (1.0 - attackProbs[i].critChance);
       const pAtLeastOneCrit = 1.0 - pAllNonCrit;
@@ -1079,8 +1047,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
       const totalExpected = totalWeaponExpected + expectedBonus;
 
-      // Per-attack value shown in table: average weapon expected / numAttacks
-      // (represents single-attack contribution for comparison)
       const singleExpectedWeapon = totalWeaponExpected / numAttacks;
 
       rows.push({ ac, totalExpected, singleExpectedWeapon });
@@ -1088,8 +1054,14 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
     const maxExpected = rows.reduce((m, r) => Math.max(m, r.totalExpected), 0);
 
+    /* NEW: Corrected the mode string builder for Elven Accuracy */
+    let modeStr = '';
+    if (advantage) modeStr = 'Advantage';
+    else if (disadvantage) modeStr = 'Disadvantage';
+    if (elvenAccuracy) modeStr = modeStr ? modeStr + ' + Elven Acc' : 'Elven Acc';
+    
     const bonusStr     = dmgBonus >= 0 ? ` + ${dmgBonus}` : ` ${dmgBonus}`;
-    const modeLabel    = elvenAccuracy ? ' · Elven Accuracy' : (advantage ? ' · Advantage' : (disadvantage ? ' · Disadvantage' : ''));
+    const modeLabel    = modeStr ? ` · ${modeStr}` : '';
     const gwfLabel     = gwf ? ' · GWF' : '';
     const grazeLabel   = grazeOn ? ` · Graze +${grazeDamage}` : '';
     const vexLabel     = vexOn ? ' · Vex' : '';
@@ -1241,11 +1213,11 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     document.getElementById('export-csv').addEventListener('click', () => {
       if (!currentCalcData) return;
       const { rows, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel } = currentCalcData;
-      const header = 'AC,Turn Damage,Per Attack';
+      const header = '"AC","Turn Damage","Per Attack"';
       const body   = rows.map(r =>
-        `${sanitizeCell(r.ac)},${sanitizeCell(r.totalExpected.toFixed(2))},${sanitizeCell(r.singleExpectedWeapon.toFixed(2))}`
+        `"${sanitizeCell(r.ac)}","${sanitizeCell(r.totalExpected.toFixed(2))}","${sanitizeCell(r.singleExpectedWeapon.toFixed(2))}"`
       ).join('\n');
-      const meta = `# D&D Damage — ${sanitizeCell(diceLabel)}${sanitizeCell(bonusStr)}${sanitizeCell(bonusLabel)}${sanitizeCell(extraLabel)} · ${sanitizeCell(attacksLabel)}${sanitizeCell(modeLabel)}${sanitizeCell(gwfLabel)}${sanitizeCell(grazeLabel)}${sanitizeCell(vexLabel)}${sanitizeCell(critLabel)}`;
+      const meta = `"# D&D Damage — ${sanitizeCell(diceLabel)}${sanitizeCell(bonusStr)}${sanitizeCell(bonusLabel)}${sanitizeCell(extraLabel)} · ${sanitizeCell(attacksLabel)}${sanitizeCell(modeLabel)}${sanitizeCell(gwfLabel)}${sanitizeCell(grazeLabel)}${sanitizeCell(vexLabel)}${sanitizeCell(critLabel)}"`;
       copyText(`${meta}\n${header}\n${body}`);
       showToast('✦ CSV copied to clipboard');
     });
@@ -1270,26 +1242,41 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       if (!canvas) { showToast('⚠ Chart canvas not found'); return; }
       if (chartInstance) chartInstance.resize();
 
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.fillStyle = '#2a2a2e'; 
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      ctx.drawImage(canvas, 0, 0);
+
       try {
         if (navigator.clipboard && window.ClipboardItem) {
-          const blobPromise = new Promise((resolve, reject) => {
-            canvas.toBlob(blob => {
-              if (blob) resolve(blob);
-              else reject(new Error('Canvas toBlob failed'));
-            });
+          tempCanvas.toBlob(blob => {
+            if (!blob) {
+              showToast('⚠ Could not generate image');
+              return;
+            }
+            try {
+              const item = new ClipboardItem({ 'image/png': blob });
+              navigator.clipboard.write([item])
+                .then(() => showToast('✦ Chart image copied to clipboard'))
+                .catch(err => {
+                  console.warn('Clipboard write failed, downloading instead:', err);
+                  showToast('⚠ Clipboard blocked — downloading as PNG');
+                  downloadFallback(blob);
+                });
+            } catch (err) {
+              const p = Promise.resolve(blob);
+              const item = new ClipboardItem({ 'image/png': p });
+              navigator.clipboard.write([item])
+                .then(() => showToast('✦ Chart image copied to clipboard'))
+                .catch(() => downloadFallback(blob));
+            }
           });
-
-          const item = new ClipboardItem({ 'image/png': blobPromise });
-          navigator.clipboard.write([item])
-            .then(() => showToast('✦ Chart image copied to clipboard'))
-            .catch(err => {
-              console.warn('Clipboard write failed, downloading instead:', err);
-              showToast('⚠ Clipboard blocked — downloading as PNG');
-              blobPromise.then(b => downloadFallback(b));
-            });
         } else {
           showToast('⚠ Copy not supported — downloading as PNG');
-          canvas.toBlob(blob => {
+          tempCanvas.toBlob(blob => {
             if (blob) downloadFallback(blob);
             else showToast('⚠ Could not generate image');
           });
@@ -1297,7 +1284,7 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       } catch (err) {
         showToast('⚠ Error — downloading as PNG');
         console.warn('Clipboard image error:', err);
-        canvas.toBlob(blob => {
+        tempCanvas.toBlob(blob => {
           if (blob) downloadFallback(blob);
         });
       }
@@ -1503,9 +1490,9 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     const graze = document.getElementById('graze');
     const vex  = document.getElementById('vex');
 
+    /* NEW: Adjusted mutex logic. Elven accuracy no longer forces advantage. */
     adv.addEventListener('change', () => {
       if (adv.checked) dis.checked = false;
-      if (!adv.checked) elv.checked = false;
       syncAllCards();
       updateRollModeBadge();
     });
@@ -1515,7 +1502,7 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       updateRollModeBadge();
     });
     elv.addEventListener('change', () => {
-      if (elv.checked) { adv.checked = true; dis.checked = false; }
+      if (elv.checked) { dis.checked = false; }
       syncAllCards();
       updateRollModeBadge();
     });
