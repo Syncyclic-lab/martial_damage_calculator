@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -41,9 +42,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     .crest-line { flex: 1; height: 2px; background: linear-gradient(to right, transparent, var(--gold), transparent); max-width: 120px; }
     .crest-icon {
       font-size: 2.4rem;
-      will-change: filter;
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
       animation: flicker 4s ease-in-out infinite;
     }
     @keyframes flicker {
@@ -92,6 +90,7 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     .panel-corners::after  { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
 
     .mb-14 { margin-bottom: 14px; }
+    .mb-0  { margin-bottom: 0 !important; }
     .flex-center-gap { display: flex; align-items: center; gap: 6px; }
     .icon-large { font-size: 1rem; }
 
@@ -120,7 +119,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     }
     select {
       -webkit-appearance: none;
-      -moz-appearance: none;
       appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23c8922a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
@@ -231,6 +229,28 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       margin-top: 12px; padding-top: 12px;
       border-top: 1px solid rgba(90,90,102,0.35);
     }
+    .graze-row.hidden { display: none; }
+    .mastery-label {
+      font-family: 'IM Fell English', serif;
+      font-style: italic; font-size: 0.8em;
+      text-transform: none; letter-spacing: normal;
+    }
+    .graze-info-box {
+      background: rgba(139,26,26,0.12);
+      border: 1px solid rgba(139,26,26,0.3);
+      border-radius: 4px; padding: 10px 12px;
+    }
+    .graze-info-label {
+      font-family: 'Cinzel', serif; font-size: 0.6rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #e07070; margin-bottom: 4px;
+    }
+    .graze-info-text {
+      font-family: 'IM Fell English', serif;
+      font-style: italic; font-size: 0.78rem;
+      color: var(--parchment-dark); line-height: 1.4;
+    }
+    .graze-align-end { justify-content: flex-end; }
 
     @media (max-width: 540px) {
       .toggle-grid { grid-template-columns: 1fr 1fr; }
@@ -257,8 +277,8 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       background: none;
       transition: background 0.2s;
     }
+    .accordion-trigger { list-style: none; }
     .accordion-trigger::-webkit-details-marker { display: none; }
-    .accordion-trigger::marker { content: ''; display: none; }
     .accordion-trigger:focus-visible {
       outline: 2px solid var(--gold);
       outline-offset: -2px;
@@ -439,6 +459,37 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       padding: 8px 0;
     }
 
+    /* ── Global nav tabs ── */
+    .global-nav {
+      display: flex; gap: 0; margin-bottom: 20px;
+      border: 1px solid var(--blade); border-radius: 4px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .global-nav-tab {
+      flex: 1; padding: 11px 10px;
+      background: var(--steel); border: none; color: var(--parchment-dark);
+      font-family: 'Cinzel', serif; font-size: 0.72rem;
+      font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s; border-right: 1px solid var(--blade);
+    }
+    .global-nav-tab:last-child { border-right: none; }
+    .global-nav-tab:hover { background: var(--blade); color: var(--parchment); }
+    .global-nav-tab.active {
+      background: linear-gradient(135deg, var(--blood) 0%, #6b1111 100%);
+      color: var(--gold-light); border-color: var(--blood);
+    }
+
+    /* ── Calculator view wrappers ── */
+    .calc-view { display: none; }
+    .calc-view.active { display: block; }
+
+    /* ── Spell calculator placeholder ── */
+    .spell-placeholder {
+      text-align: center; padding: 60px 20px;
+      font-family: 'IM Fell English', Georgia, serif;
+      font-style: italic; color: var(--blade); font-size: 1rem;
+    }
+
     /* ── Export bar ── */
     .export-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
     .export-btn {
@@ -503,222 +554,367 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     <p class="subtitle">Expected Damage &bull; D&amp;D 5e</p>
   </header>
 
+  <!-- ── Global Navigation ── -->
+
+  <nav class="global-nav" role="tablist" aria-label="Calculator mode">
+    <button class="global-nav-tab active" id="tab-attack" role="tab"
+            aria-selected="true" aria-controls="attack-calculator-view" type="button">
+      ⚔ Attack Rolls
+    </button>
+    <button class="global-nav-tab" id="tab-spell" role="tab"
+            aria-selected="false" aria-controls="spell-calculator-view" type="button">
+      ✨ Saving Throws
+    </button>
+  </nav>
+
+  <!-- ── Attack Calculator View ── -->
+
+  <div id="attack-calculator-view" class="calc-view active" role="tabpanel" aria-labelledby="tab-attack">
 
   <div class="panel" id="input-panel">
     <div class="panel-corners" aria-hidden="true"></div>
 
-    <details class="accordion" id="acc-combat" open>
-      <summary class="accordion-trigger">
-        <div class="accordion-trigger-inner">
-          <span class="accordion-icon">⚔️</span>
-          <span class="accordion-label">Combat Parameters</span>
-          <span class="accordion-badge" id="badge-combat"></span>
-          <span class="accordion-chevron" aria-hidden="true"></span>
+```
+<details class="accordion" id="acc-combat" open>
+  <summary class="accordion-trigger">
+    <div class="accordion-trigger-inner">
+      <span class="accordion-icon">⚔️</span>
+      <span class="accordion-label">Combat Parameters</span>
+      <span class="accordion-badge" id="badge-combat"></span>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </div>
+  </summary>
+  <div class="accordion-body">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="toHit">To Hit Bonus</label>
+        <input type="number" id="toHit" value="6" min="-5" max="20" aria-label="To hit bonus">
+      </div>
+      <div class="form-group">
+        <label for="dmgBonus">Damage Bonus</label>
+        <input type="number" id="dmgBonus" value="4" min="-10" max="30" aria-label="Damage bonus">
+      </div>
+      <div class="form-group full">
+        <label for="weaponDice">Weapon Dice</label>
+        <input type="text" id="weaponDice" value="1d8" placeholder="e.g. 1d8, 2d6, 1d4"
+               aria-label="Weapon dice notation" maxlength="60"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="input-hint">Separate multiple dice groups with commas &mdash; e.g. 1d8, 2d6, 1d4</div>
+        <div class="dice-summary" id="dice-tags"></div>
+      </div>
+    </div>
+  </div>
+</details>
+
+<details class="accordion" id="acc-advanced">
+  <summary class="accordion-trigger">
+    <div class="accordion-trigger-inner">
+      <span class="accordion-icon">⚙️</span>
+      <span class="accordion-label">Advanced Options</span>
+      <span class="accordion-badge" id="badge-advanced">Optional</span>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </div>
+  </summary>
+  <div class="accordion-body">
+    <div class="form-grid-3 mb-14">
+      <div class="form-group">
+        <label for="numAttacks">Attacks / Turn</label>
+        <select id="numAttacks" aria-label="Number of attacks per turn">
+          <option value="1" selected>1 — Single</option>
+          <option value="2">2 — Extra Attack</option>
+          <option value="3">3 — 11th Level</option>
+          <option value="4">4 — 20th Level</option>
+        </select>
+        <div class="input-hint">Total attacks per action</div>
+      </div>
+      <div class="form-group">
+        <label for="critThreshold">Crit on a ...</label>
+        <select id="critThreshold" aria-label="Critical hit threshold">
+          <option value="20" selected>20 — Standard</option>
+          <option value="19">19–20 Champion</option>
+          <option value="18">18–20 Expanded</option>
+        </select>
+        <div class="input-hint">Champion / Hexblade</div>
+      </div>
+      <div class="form-group">
+        <label for="bonusDmgDice">Bonus Damage Dice</label>
+        <input type="text" id="bonusDmgDice" value="" placeholder="e.g. 3d6, 2d8"
+               aria-label="Once-per-turn bonus damage dice (Sneak Attack, Divine Strike)"
+               maxlength="60"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="input-hint">Sneak Attack / Smite (once/turn, crits doubled)</div>
+      </div>
+    </div>
+    <div class="form-grid-3">
+      <div class="form-group">
+        <label for="extraCritDice">Extra Crit Dice</label>
+        <input type="text" id="extraCritDice" value="" placeholder="e.g. 1d12, 1d6"
+               aria-label="Extra dice added only on a critical hit, not doubled"
+               maxlength="60"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="input-hint">Brutal Critical / Savage Attacks &mdash; added on crit, not doubled</div>
+      </div>
+    </div>
+  </div>
+</details>
+
+<details class="accordion" id="acc-rollmode">
+  <summary class="accordion-trigger">
+    <div class="accordion-trigger-inner">
+      <span class="accordion-icon">🎲</span>
+      <span class="accordion-label">Roll Mode</span>
+      <span class="accordion-badge" id="badge-rollmode">Optional</span>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </div>
+  </summary>
+  <div class="accordion-body">
+    <div class="toggle-group mb-0">
+      <div class="toggle-grid" role="group" aria-label="Roll mode selection">
+
+        <label class="toggle-card" for="advantage" id="card-advantage">
+          <input type="checkbox" id="advantage" aria-label="Advantage — roll 2d20, keep highest">
+          <div class="toggle-card-pip" aria-hidden="true"></div>
+          <div class="toggle-card-header">
+            <span class="toggle-card-icon">🎲</span>
+            <span class="toggle-card-name">Advantage</span>
+          </div>
+          <span class="toggle-card-desc">Roll 2d20, keep the higher result. Doubles crit chance.</span>
+        </label>
+
+        <label class="toggle-card" for="disadvantage" id="card-disadvantage">
+          <input type="checkbox" id="disadvantage" aria-label="Disadvantage — roll 2d20, keep lowest">
+          <div class="toggle-card-pip" aria-hidden="true"></div>
+          <div class="toggle-card-header">
+            <span class="toggle-card-icon">💀</span>
+            <span class="toggle-card-name">Disadvantage</span>
+          </div>
+          <span class="toggle-card-desc">Roll 2d20, keep the lower result. Drastically reduces hit &amp; crit chance.</span>
+        </label>
+
+        <label class="toggle-card" for="elvenAccuracy" id="card-elvenAccuracy">
+          <input type="checkbox" id="elvenAccuracy" aria-label="Elven Accuracy — upgrades Advantage into a triple-roll">
+          <div class="toggle-card-pip" aria-hidden="true"></div>
+          <div class="toggle-card-header">
+            <span class="toggle-card-icon">🧝</span>
+            <span class="toggle-card-name">Elven Accuracy</span>
+          </div>
+          <span class="toggle-card-desc">When you have Advantage, roll 3d20 and keep the highest. Fires on any source of Advantage — including Vex. Half-elf/elf feat.</span>
+        </label>
+
+      </div>
+    </div>
+  </div>
+</details>
+
+<details class="accordion mb-0" id="acc-weapon">
+  <summary class="accordion-trigger">
+    <div class="accordion-trigger-inner">
+      <span class="accordion-icon">🗡️</span>
+      <span class="accordion-label">Weapon Style &amp; Mastery</span>
+      <span class="accordion-badge" id="badge-weapon">Optional</span>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </div>
+  </summary>
+  <div class="accordion-body">
+
+    <div class="toggle-group mb-14">
+      <label style="display:block;margin-bottom:8px;">Fighting Style</label>
+      <div class="toggle-grid-solo" role="group" aria-label="Weapon fighting style">
+        <label class="toggle-card" for="gwf" id="card-gwf">
+          <input type="checkbox" id="gwf" aria-label="Great Weapon Fighting — reroll weapon dice results of 1 or 2">
+          <div class="toggle-card-pip" aria-hidden="true"></div>
+          <div class="toggle-card-header">
+            <span class="toggle-card-icon">⚔️</span>
+            <span class="toggle-card-name">Great Weapon Fighting</span>
+          </div>
+          <span class="toggle-card-desc">When you roll a 1 or 2 on a weapon damage die, reroll it and use the new result. Applies to weapon dice only.</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="toggle-group mb-0">
+      <label style="display:block;margin-bottom:8px;">Weapon Mastery <span class="mastery-label">(5.5e / 2024 Rules)</span></label>
+      <div class="toggle-grid-2" role="group" aria-label="Weapon mastery selection">
+
+        <label class="toggle-card" for="graze" id="card-graze">
+          <input type="checkbox" id="graze" aria-label="Graze mastery — deal ability modifier damage on a miss">
+          <div class="toggle-card-pip" aria-hidden="true"></div>
+          <div class="toggle-card-header">
+            <span class="toggle-card-icon">🛡️</span>
+            <span class="toggle-card-name">Graze</span>
+          </div>
+          <span class="toggle-card-desc">On a miss, deal damage equal to your ability modifier. Creates a reliable damage floor against high-AC targets.</span>
+          <span class="mastery-badge">Greatsword · Glaive · Halberd</span>
+        </label>
+
+        <label class="toggle-card" for="vex" id="card-vex">
+          <input type="checkbox" id="vex" aria-label="Vex mastery — hitting grants advantage on your next attack">
+          <div class="toggle-card-pip" aria-hidden="true"></div>
+          <div class="toggle-card-header">
+            <span class="toggle-card-icon">👁️</span>
+            <span class="toggle-card-name">Vex</span>
+          </div>
+          <span class="toggle-card-desc">Hitting a target grants Advantage on your next attack against it. Cascading advantage across multi-attack turns.</span>
+          <span class="mastery-badge">Rapier · Shortbow · Hand Crossbow</span>
+        </label>
+
+      </div>
+
+      <div class="graze-row hidden" id="graze-input-row">
+        <div class="form-group">
+          <label for="grazeDamage">Graze Damage (Ability Modifier)</label>
+          <input type="number" id="grazeDamage" value="4" min="0" max="10"
+                 aria-label="Ability modifier used for Graze on-miss damage">
+          <div class="input-hint">Typically your STR or DEX modifier</div>
         </div>
-      </summary>
-      <div class="accordion-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="toHit">To Hit Bonus</label>
-            <input type="number" id="toHit" value="6" min="-5" max="20" aria-label="To hit bonus">
-          </div>
-          <div class="form-group">
-            <label for="dmgBonus">Damage Bonus</label>
-            <input type="number" id="dmgBonus" value="4" min="-10" max="30" aria-label="Damage bonus">
-          </div>
-          <div class="form-group full">
-            <label for="weaponDice">Weapon Dice</label>
-            <input type="text" id="weaponDice" value="1d8" placeholder="e.g. 1d8, 2d6, 1d4"
-                   aria-label="Weapon dice notation" maxlength="60"
-                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-            <div class="input-hint">Separate multiple dice groups with commas &mdash; e.g. 1d8, 2d6, 1d4</div>
-            <div class="dice-summary" id="dice-tags"></div>
+        <div class="form-group graze-align-end">
+          <div class="graze-info-box">
+            <div class="graze-info-label">Effect</div>
+            <div class="graze-info-text">Every missed attack still deals your modifier in damage. Flattens the damage curve at high AC.</div>
           </div>
         </div>
       </div>
-    </details>
 
-    <details class="accordion" id="acc-advanced">
-      <summary class="accordion-trigger">
-        <div class="accordion-trigger-inner">
-          <span class="accordion-icon">⚙️</span>
-          <span class="accordion-label">Advanced Options</span>
-          <span class="accordion-badge" id="badge-advanced">Optional</span>
-          <span class="accordion-chevron" aria-hidden="true"></span>
-        </div>
-      </summary>
-      <div class="accordion-body">
-        <div class="form-grid-3 mb-14">
-          <div class="form-group">
-            <label for="numAttacks">Attacks / Turn</label>
-            <select id="numAttacks" aria-label="Number of attacks per turn">
-              <option value="1" selected>1 — Single</option>
-              <option value="2">2 — Extra Attack</option>
-              <option value="3">3 — 11th Level</option>
-              <option value="4">4 — 20th Level</option>
-            </select>
-            <div class="input-hint">Total attacks per action</div>
-          </div>
-          <div class="form-group">
-            <label for="critThreshold">Crit on a ...</label>
-            <select id="critThreshold" aria-label="Critical hit threshold">
-              <option value="20" selected>20 — Standard</option>
-              <option value="19">19–20 Champion</option>
-              <option value="18">18–20 Expanded</option>
-            </select>
-            <div class="input-hint">Champion / Hexblade</div>
-          </div>
-          <div class="form-group">
-            <label for="bonusDmgDice">Bonus Damage Dice</label>
-            <input type="text" id="bonusDmgDice" value="" placeholder="e.g. 3d6, 2d8"
-                   aria-label="Once-per-turn bonus damage dice (Sneak Attack, Divine Strike)"
-                   maxlength="60"
-                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-            <div class="input-hint">Sneak Attack / Smite (once/turn, crits doubled)</div>
-          </div>
-        </div>
-        <div class="form-grid-3">
-          <div class="form-group">
-            <label for="extraCritDice">Extra Crit Dice</label>
-            <input type="text" id="extraCritDice" value="" placeholder="e.g. 1d12, 1d6"
-                   aria-label="Extra dice added only on a critical hit, not doubled"
-                   maxlength="60"
-                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-            <div class="input-hint">Brutal Critical / Savage Attacks &mdash; added on crit, not doubled</div>
-          </div>
-        </div>
-      </div>
-    </details>
-
-    <details class="accordion" id="acc-rollmode">
-      <summary class="accordion-trigger">
-        <div class="accordion-trigger-inner">
-          <span class="accordion-icon">🎲</span>
-          <span class="accordion-label">Roll Mode</span>
-          <span class="accordion-badge" id="badge-rollmode">Optional</span>
-          <span class="accordion-chevron" aria-hidden="true"></span>
-        </div>
-      </summary>
-      <div class="accordion-body">
-        <div class="toggle-group" style="margin-bottom:0">
-          <div class="toggle-grid" role="group" aria-label="Roll mode selection">
-
-            <label class="toggle-card" for="advantage" id="card-advantage">
-              <input type="checkbox" id="advantage" aria-label="Advantage — roll 2d20, keep highest">
-              <div class="toggle-card-pip" aria-hidden="true"></div>
-              <div class="toggle-card-header">
-                <span class="toggle-card-icon">🎲</span>
-                <span class="toggle-card-name">Advantage</span>
-              </div>
-              <span class="toggle-card-desc">Roll 2d20, keep the higher result. Doubles crit chance.</span>
-            </label>
-
-            <label class="toggle-card" for="disadvantage" id="card-disadvantage">
-              <input type="checkbox" id="disadvantage" aria-label="Disadvantage — roll 2d20, keep lowest">
-              <div class="toggle-card-pip" aria-hidden="true"></div>
-              <div class="toggle-card-header">
-                <span class="toggle-card-icon">💀</span>
-                <span class="toggle-card-name">Disadvantage</span>
-              </div>
-              <span class="toggle-card-desc">Roll 2d20, keep the lower result. Drastically reduces hit &amp; crit chance.</span>
-            </label>
-
-            <label class="toggle-card" for="elvenAccuracy" id="card-elvenAccuracy">
-              <input type="checkbox" id="elvenAccuracy" aria-label="Elven Accuracy — upgrades Advantage into a triple-roll">
-              <div class="toggle-card-pip" aria-hidden="true"></div>
-              <div class="toggle-card-header">
-                <span class="toggle-card-icon">🧝</span>
-                <span class="toggle-card-name">Elven Accuracy</span>
-              </div>
-              <span class="toggle-card-desc">Upgrades Advantage into a triple-roll. Half-elf/elf feat — only triggers when you have Advantage.</span>
-            </label>
-
-          </div>
-        </div>
-      </div>
-    </details>
-
-    <details class="accordion" id="acc-weapon" style="margin-bottom:0">
-      <summary class="accordion-trigger">
-        <div class="accordion-trigger-inner">
-          <span class="accordion-icon">🗡️</span>
-          <span class="accordion-label">Weapon Style &amp; Mastery</span>
-          <span class="accordion-badge" id="badge-weapon">Optional</span>
-          <span class="accordion-chevron" aria-hidden="true"></span>
-        </div>
-      </summary>
-      <div class="accordion-body">
-
-        <div class="toggle-group mb-14">
-          <label style="display:block;margin-bottom:8px;">Fighting Style</label>
-          <div class="toggle-grid-solo" role="group" aria-label="Weapon fighting style">
-            <label class="toggle-card" for="gwf" id="card-gwf">
-              <input type="checkbox" id="gwf" aria-label="Great Weapon Fighting — reroll weapon dice results of 1 or 2">
-              <div class="toggle-card-pip" aria-hidden="true"></div>
-              <div class="toggle-card-header">
-                <span class="toggle-card-icon">⚔️</span>
-                <span class="toggle-card-name">Great Weapon Fighting</span>
-              </div>
-              <span class="toggle-card-desc">When you roll a 1 or 2 on a weapon damage die, reroll it and use the new result. Applies to weapon dice only.</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="toggle-group" style="margin-bottom:0">
-          <label style="display:block;margin-bottom:8px;">Weapon Mastery <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:0.8em;text-transform:none;letter-spacing:0;">(5.5e / 2024 Rules)</span></label>
-          <div class="toggle-grid-2" role="group" aria-label="Weapon mastery selection">
-
-            <label class="toggle-card" for="graze" id="card-graze">
-              <input type="checkbox" id="graze" aria-label="Graze mastery — deal ability modifier damage on a miss">
-              <div class="toggle-card-pip" aria-hidden="true"></div>
-              <div class="toggle-card-header">
-                <span class="toggle-card-icon">🛡️</span>
-                <span class="toggle-card-name">Graze</span>
-              </div>
-              <span class="toggle-card-desc">On a miss, deal damage equal to your ability modifier. Creates a reliable damage floor against high-AC targets.</span>
-              <span class="mastery-badge">Greatsword · Glaive · Halberd</span>
-            </label>
-
-            <label class="toggle-card" for="vex" id="card-vex">
-              <input type="checkbox" id="vex" aria-label="Vex mastery — hitting grants advantage on your next attack">
-              <div class="toggle-card-pip" aria-hidden="true"></div>
-              <div class="toggle-card-header">
-                <span class="toggle-card-icon">👁️</span>
-                <span class="toggle-card-name">Vex</span>
-              </div>
-              <span class="toggle-card-desc">Hitting a target grants Advantage on your next attack against it. Cascading advantage across multi-attack turns.</span>
-              <span class="mastery-badge">Rapier · Shortbow · Hand Crossbow</span>
-            </label>
-
-          </div>
-
-          <div class="graze-row" id="graze-input-row" style="display:none;">
-            <div class="form-group">
-              <label for="grazeDamage">Graze Damage (Ability Modifier)</label>
-              <input type="number" id="grazeDamage" value="4" min="0" max="10"
-                     aria-label="Ability modifier used for Graze on-miss damage">
-              <div class="input-hint">Typically your STR or DEX modifier</div>
-            </div>
-            <div class="form-group" style="justify-content:flex-end;">
-              <div style="background:rgba(139,26,26,0.12);border:1px solid rgba(139,26,26,0.3);border-radius:4px;padding:10px 12px;">
-                <div style="font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#e07070;margin-bottom:4px;">Effect</div>
-                <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:0.78rem;color:var(--parchment-dark);line-height:1.4;">Every missed attack still deals your modifier in damage. Flattens the damage curve at high AC.</div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </details>
+    </div>
+  </div>
+</details>
 
 <button class="calc-btn" id="calc-btn" type="button" aria-label="Calculate expected damage" style="margin-top:16px">
   ⚔ Strike &mdash; Calculate Damage
 </button>
 <div id="error-message" class="error-msg" role="alert" aria-live="polite"></div>
+```
 
   </div>
 
-  <div id="results-container" aria-live="polite" aria-atomic="true"></div>
+  <div id="results-container" aria-live="polite" aria-atomic="false"></div>
+
+  </div><!-- /#attack-calculator-view -->
+
+  <!-- ── Spell Calculator View ── -->
+
+  <div id="spell-calculator-view" class="calc-view" role="tabpanel" aria-labelledby="tab-spell">
+
+```
+<div class="panel" id="spell-input-panel">
+  <div class="panel-corners" aria-hidden="true"></div>
+
+  <!-- Spell Parameters accordion -->
+  <details class="accordion" id="acc-spell-params" open>
+    <summary class="accordion-trigger">
+      <div class="accordion-trigger-inner">
+        <span class="accordion-icon">✨</span>
+        <span class="accordion-label">Spell Parameters</span>
+        <span class="accordion-badge" id="badge-spell-params"></span>
+        <span class="accordion-chevron" aria-hidden="true"></span>
+      </div>
+    </summary>
+    <div class="accordion-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="spellSaveDC">Spell Save DC</label>
+          <input type="number" id="spellSaveDC" value="15" min="5" max="30"
+                 aria-label="Spell save DC">
+          <div class="input-hint">Typically 8 + Prof + Casting Mod</div>
+        </div>
+        <div class="form-group">
+          <!-- intentionally empty — keeps grid symmetry -->
+        </div>
+        <div class="form-group full">
+          <label for="spellDice">Damage Dice</label>
+          <input type="text" id="spellDice" value="8d6" placeholder="e.g. 8d6, 4d10, 6d8"
+                 aria-label="Spell damage dice notation" maxlength="60"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <div class="input-hint">Separate multiple dice groups with commas &mdash; e.g. 8d6, 2d4</div>
+          <div class="dice-summary" id="spell-dice-tags"></div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Spell Mechanics accordion -->
+  <details class="accordion" id="acc-spell-mechanics">
+    <summary class="accordion-trigger">
+      <div class="accordion-trigger-inner">
+        <span class="accordion-icon">⚙️</span>
+        <span class="accordion-label">Spell Mechanics</span>
+        <span class="accordion-badge" id="badge-spell-mechanics">Optional</span>
+        <span class="accordion-chevron" aria-hidden="true"></span>
+      </div>
+    </summary>
+    <div class="accordion-body">
+      <div class="toggle-group mb-0">
+        <div class="toggle-grid-solo" role="group" aria-label="Spell mechanics">
+
+          <label class="toggle-card" for="saveForHalf" id="card-saveForHalf">
+            <input type="checkbox" id="saveForHalf" checked
+                   aria-label="Save for half — successful save deals 50% damage">
+            <div class="toggle-card-pip" aria-hidden="true"></div>
+            <div class="toggle-card-header">
+              <span class="toggle-card-icon">🛡️</span>
+              <span class="toggle-card-name">Save for Half</span>
+            </div>
+            <span class="toggle-card-desc">A successful save deals half damage. If unchecked, a successful save negates all damage (e.g. Hold Person, Banishment).</span>
+          </label>
+
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Target Roll Mode accordion -->
+  <details class="accordion mb-0" id="acc-spell-rollmode">
+    <summary class="accordion-trigger">
+      <div class="accordion-trigger-inner">
+        <span class="accordion-icon">🎲</span>
+        <span class="accordion-label">Target Roll Mode</span>
+        <span class="accordion-badge" id="badge-spell-rollmode">Optional</span>
+        <span class="accordion-chevron" aria-hidden="true"></span>
+      </div>
+    </summary>
+    <div class="accordion-body">
+      <div class="toggle-group mb-0">
+        <div class="toggle-grid-2" role="group" aria-label="Target saving throw roll mode">
+
+          <label class="toggle-card" for="spellAdvantage" id="card-spellAdvantage">
+            <input type="checkbox" id="spellAdvantage"
+                   aria-label="Target has advantage on saving throw">
+            <div class="toggle-card-pip" aria-hidden="true"></div>
+            <div class="toggle-card-header">
+              <span class="toggle-card-icon">🎲</span>
+              <span class="toggle-card-name">Adv. on Save</span>
+            </div>
+            <span class="toggle-card-desc">Target rolls 2d20 and keeps the highest. Reduces your expected damage — e.g. target has Magic Resistance.</span>
+          </label>
+
+          <label class="toggle-card" for="spellDisadvantage" id="card-spellDisadvantage">
+            <input type="checkbox" id="spellDisadvantage"
+                   aria-label="Target has disadvantage on saving throw">
+            <div class="toggle-card-pip" aria-hidden="true"></div>
+            <div class="toggle-card-header">
+              <span class="toggle-card-icon">💀</span>
+              <span class="toggle-card-name">Disadv. on Save</span>
+            </div>
+            <span class="toggle-card-desc">Target rolls 2d20 and keeps the lowest. Increases your expected damage — e.g. target is restrained or frightened.</span>
+          </label>
+
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <button class="calc-btn" id="spell-calc-btn" type="button"
+          aria-label="Calculate expected spell damage" style="margin-top:16px">
+    ✨ Cast &mdash; Calculate Spell Damage
+  </button>
+  <div id="spell-error-message" class="error-msg" role="alert" aria-live="polite"></div>
+
+</div><!-- /#spell-input-panel -->
+
+<div id="spell-results-container" aria-live="polite" aria-atomic="false"></div>
+```
+
+  </div><!-- /#spell-calculator-view -->
 
   <footer class="footer">⚔ &nbsp; Forged for battle &bull; D&amp;D 5e / 5.5e Rules &nbsp; ⚔</footer>
 </div>
@@ -770,6 +966,7 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     toHit:       { min: -5,  max: 20, label: 'To Hit bonus' },
     dmgBonus:    { min: -10, max: 30, label: 'Damage bonus' },
     grazeDamage: { min: 0,   max: 10, label: 'Graze damage' },
+    spellSaveDC: { min: 5,   max: 30, label: 'Spell Save DC' },
   };
 
   function parseAndClampInt(raw, boundsKey) {
@@ -781,8 +978,9 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     return { value: val, error: null };
   }
 
-  let chartInstance   = null;
-  let currentCalcData = null;
+  let chartInstance        = null;
+  let currentCalcData      = null;
+  let currentSpellCalcData = null;
 
   /* ── Toast ── */
   function showToast(msg) {
@@ -846,20 +1044,224 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     });
   }
 
+  function updateSpellDiceTags() {
+    const tagsDiv = document.getElementById('spell-dice-tags');
+    if (!tagsDiv) return;
+    while (tagsDiv.firstChild) tagsDiv.removeChild(tagsDiv.firstChild);
+    const result = parseDiceInput(document.getElementById('spellDice').value, false);
+    if (!result.groups) return;
+    result.groups.forEach(g => {
+      tagsDiv.appendChild(el('span', { class: 'dice-tag' }, `${g.count}d${g.faces}`));
+    });
+  }
+
+  /* ── Spell badge updaters ── */
+  function updateSpellParamsBadge() {
+    const dc   = document.getElementById('spellSaveDC').value.trim();
+    const dice = document.getElementById('spellDice').value.trim();
+    setBadge('badge-spell-params', dice ? `${dice} · DC ${dc}` : null);
+  }
+
+  function updateSpellMechanicsBadge() {
+    const half = document.getElementById('saveForHalf').checked;
+    setBadge('badge-spell-mechanics', half ? 'Save for Half' : 'No Damage on Save');
+  }
+
+  function updateSpellRollModeBadge() {
+    const adv = document.getElementById('spellAdvantage').checked;
+    const dis = document.getElementById('spellDisadvantage').checked;
+    const label = adv ? 'Adv. on Save' : dis ? 'Disadv. on Save' : null;
+    setBadge('badge-spell-rollmode', label);
+  }
+
+  /* ── Spell Core Calculation ── */
+  function calculateSpellExpectedDamage() {
+    const errorDiv = document.getElementById('spell-error-message');
+    errorDiv.textContent = '';
+
+    // ── Read inputs ──
+    const dcResult = parseAndClampInt(document.getElementById('spellSaveDC').value, 'spellSaveDC');
+    if (dcResult.error) { errorDiv.textContent = dcResult.error; return; }
+    const dc = dcResult.value;
+
+    const saveForHalf = document.getElementById('saveForHalf').checked;
+
+    const spellAdv = document.getElementById('spellAdvantage').checked;
+    const spellDis = document.getElementById('spellDisadvantage').checked;
+    let rollMode = 'straight';
+    if (spellAdv) rollMode = 'advantage';
+    else if (spellDis) rollMode = 'disadvantage';
+
+    // ── Parse dice ──
+    const parsed = parseDiceInput(document.getElementById('spellDice').value, false);
+    if (parsed.error) { errorDiv.textContent = parsed.error; return; }
+
+    const avgRawDamage    = totalAvgDice(parsed.groups);
+    const mitigatedDamage = saveForHalf ? avgRawDamage / 2.0 : 0.0;
+
+    // ── Iterate save modifiers 0–10 ──
+    const rows = [];
+    for (let saveMod = 0; saveMod <= 10; saveMod++) {
+      const { failChance, successChance } = computeSaveProbs(saveMod, dc, rollMode);
+
+      // Expected damage = (P(fail) × full damage) + (P(success) × mitigated damage)
+      const totalExpected = (failChance * avgRawDamage) + (successChance * mitigatedDamage);
+
+      rows.push({ saveMod, totalExpected });
+    }
+
+    const maxExpected = rows.reduce((m, r) => Math.max(m, r.totalExpected), 0);
+
+    // ── Build label strings for the subtitle ──
+    const diceLabel   = parsed.groups.map(g => `${g.count}d${g.faces}`).join(' + ');
+    const halfLabel   = saveForHalf ? ' · Save for Half' : ' · No Dmg on Save';
+    const modeLabel   = spellAdv ? ' · Adv. on Save' : spellDis ? ' · Disadv. on Save' : '';
+
+    currentSpellCalcData = { rows, maxExpected, diceLabel, dc, halfLabel, modeLabel };
+    renderSpellResults(rows, maxExpected, diceLabel, dc, halfLabel, modeLabel);
+  }
+
+  /* ── Spell render results ── */
+  function renderSpellResults(rows, maxExpected, diceLabel, dc, halfLabel, modeLabel) {
+    const resultsDiv = document.getElementById('spell-results-container');
+
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    while (resultsDiv.firstChild) resultsDiv.removeChild(resultsDiv.firstChild);
+
+    const panel = el('div', { class: 'panel results-panel' });
+    const panelCorners = el('div', { class: 'panel-corners', 'aria-hidden': 'true' });
+    panel.appendChild(panelCorners);
+
+    panel.appendChild(el('div', { class: 'results-title'    }, `✨ Expected Spell Damage`));
+    panel.appendChild(el('div', { class: 'results-subtitle' },
+      `${diceLabel} · DC ${dc}${halfLabel}${modeLabel}`));
+
+    const tabBar   = el('div',    { class: 'view-tabs', role: 'tablist' });
+    const tabTable = el('button', { class: 'view-tab active', 'data-tab': 'spell-table', role: 'tab', type: 'button', 'aria-selected': 'true',  'aria-controls': 'spell-pane-table' }, '📋 Table');
+    const tabChart = el('button', { class: 'view-tab',        'data-tab': 'spell-chart', role: 'tab', type: 'button', 'aria-selected': 'false', 'aria-controls': 'spell-pane-chart' }, '📈 Graph');
+    tabBar.appendChild(tabTable);
+    tabBar.appendChild(tabChart);
+    panel.appendChild(tabBar);
+
+    /* Table pane */
+    const paneTable = el('div', { class: 'view-pane active', id: 'spell-pane-table', role: 'tabpanel' });
+    const scroll    = el('div', { class: 'table-scroll' });
+    const table     = el('table', { role: 'table', 'aria-label': 'Expected spell damage by save modifier' });
+    const thead     = el('thead');
+    const headerRow = el('tr');
+    ['Save Modifier', 'Expected Damage', 'Power'].forEach(h => {
+      headerRow.appendChild(el('th', { scope: 'col' }, h));
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = el('tbody');
+    for (const row of rows) {
+      const barWidth  = maxExpected > 0 ? (row.totalExpected / maxExpected) * 100 : 0;
+      const tierClass = barWidth > 65 ? 'tier-high' : (barWidth > 35 ? 'tier-mid' : 'tier-low');
+      const barColor  = barWidth > 65
+        ? 'linear-gradient(90deg,var(--gold-dim),var(--gold-light))'
+        : (barWidth > 35
+            ? 'linear-gradient(90deg,var(--blood),var(--gold-dim))'
+            : 'linear-gradient(90deg,var(--steel),var(--blade))');
+
+      const tr = el('tr', { class: tierClass });
+      tr.appendChild(el('td', { class: 'ac-cell' }, `+${row.saveMod}`));
+
+      const dmgCell = el('td', { class: 'dmg-cell', style: { position: 'relative', paddingBottom: '12px' } },
+        row.totalExpected.toFixed(2));
+      const bar = el('div', { class: 'dmg-bar' });
+      bar.style.width      = barWidth.toFixed(1) + '%';
+      bar.style.background = barColor;
+      dmgCell.appendChild(bar);
+      tr.appendChild(dmgCell);
+
+      const powerCell  = el('td');
+      const powerOuter = el('div', { style: { background: 'rgba(255,255,255,0.06)', borderRadius: '2px', height: '8px', overflow: 'hidden' } });
+      const powerInner = el('div');
+      Object.assign(powerInner.style, {
+        height: '100%', width: barWidth.toFixed(1) + '%',
+        background: barColor, borderRadius: '2px', transition: 'width 0.4s ease'
+      });
+      powerOuter.appendChild(powerInner);
+      powerCell.appendChild(powerOuter);
+      tr.appendChild(powerCell);
+
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    scroll.appendChild(table);
+    paneTable.appendChild(scroll);
+    panel.appendChild(paneTable);
+
+    /* Chart pane */
+    const paneChart = el('div', { class: 'view-pane', id: 'spell-pane-chart', role: 'tabpanel' });
+    const chartWrap = el('div', { class: 'chart-wrap' });
+    chartWrap.appendChild(el('canvas', { id: 'spell-dmg-chart', 'aria-label': 'Expected spell damage line chart' }));
+    paneChart.appendChild(chartWrap);
+    panel.appendChild(paneChart);
+
+    const exportBar = el('div', { class: 'export-bar' });
+
+    const btnTSV = el('button', { class: 'export-btn', id: 'spell-export-tsv', type: 'button' });
+    btnTSV.appendChild(el('span', { class: 'btn-icon' }, '📄'));
+    btnTSV.appendChild(document.createTextNode(' Copy as TSV'));
+
+    const btnCSV = el('button', { class: 'export-btn', id: 'spell-export-csv', type: 'button' });
+    btnCSV.appendChild(el('span', { class: 'btn-icon' }, '📊'));
+    btnCSV.appendChild(document.createTextNode(' Copy as CSV'));
+
+    const btnImg = el('button', { class: 'export-btn', id: 'spell-export-img', type: 'button', 'aria-label': 'Copy chart as image', title: 'Copy chart as PNG image' });
+    btnImg.appendChild(el('span', { class: 'btn-icon' }, '🖼️'));
+    btnImg.appendChild(document.createTextNode(' Copy Chart Image'));
+
+    exportBar.appendChild(btnTSV);
+    exportBar.appendChild(btnCSV);
+    exportBar.appendChild(btnImg);
+    panel.appendChild(exportBar);
+
+    resultsDiv.appendChild(panel);
+
+    bindTabListeners(tabTable, tabChart, paneTable, paneChart);
+    bindSpellExportListeners();
+    renderSpellChart(rows, modeLabel);
+  }
+
+  /* ── Spell toggle mutex (adv / disadv on save are mutually exclusive) ── */
+  function setupSpellToggles() {
+    const advEl  = document.getElementById('spellAdvantage');
+    const disEl  = document.getElementById('spellDisadvantage');
+    const halfEl = document.getElementById('saveForHalf');
+
+    advEl.addEventListener('change', () => {
+      if (advEl.checked) disEl.checked = false;
+      syncCard(advEl);
+      syncCard(disEl);
+      updateSpellRollModeBadge();
+    });
+    disEl.addEventListener('change', () => {
+      if (disEl.checked) advEl.checked = false;
+      syncCard(advEl);
+      syncCard(disEl);
+      updateSpellRollModeBadge();
+    });
+    halfEl.addEventListener('change', () => {
+      syncCard(halfEl);
+      updateSpellMechanicsBadge();
+    });
+  }
+
   /* ─────────────────────────────────────────────────────────────────
    * computeAttackProbs(baseMissChance, critThreshold, rollMode, hasElvenAccuracy)
    *
-   * NEW: Added hasElvenAccuracy flag. If true, and the rollMode is
-   * 'advantage', it internally upgrades the calculation to 'elven'.
+   * hasElvenAccuracy upgrades any 'advantage' roll to 'elven' (triple-
+   * roll, keep highest). Per RAW, Elven Accuracy fires on any source
+   * of Advantage — including Vex-granted Advantage.
    * ───────────────────────────────────────────────────────────────── */
   function computeAttackProbs(baseMissChance, critThreshold, rollMode, hasElvenAccuracy) {
     let missChance, critChance;
-    
-    /* NEW: Upgrade logic */
-    let effectiveMode = rollMode;
-    if (hasElvenAccuracy && rollMode === 'advantage') {
-      effectiveMode = 'elven';
-    }
+
+    const effectiveMode = (hasElvenAccuracy && rollMode === 'advantage') ? 'elven' : rollMode;
 
     if (effectiveMode === 'elven') {
       const pBelowCrit = (critThreshold - 1) / 20.0;
@@ -888,35 +1290,95 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
   }
 
   /* ─────────────────────────────────────────────────────────────────
+   * computeSaveProbs(saveModifier, dc, rollMode)
+   *
+   * Saving throw logic is the inverse of attack roll logic:
+   * the TARGET rolls d20 + saveModifier against the caster's DC.
+   *
+   * successChance — P(target saves); failChance — P(target fails/takes
+   * full damage).
+   *
+   * RAW (5e & 5.5e 2024): natural 1s and 20s do NOT auto-fail/succeed
+   * on saving throws (Death Saves are the sole exception). A target with
+   * a modifier high enough that even a 1 beats the DC succeeds 100% of
+   * the time; a target who cannot reach the DC even on a 20 fails 100%.
+   * We therefore clamp targetRoll to [1, 21] so that the formula
+   * (21 - targetRoll) / 20 naturally produces 1.0 and 0.0 at the
+   * extremes rather than artificially flooring/capping at 19/20 or 1/20.
+   *
+   * Advantage/Disadvantage applies to the TARGET'S roll:
+   *   Adv  → target rolls 2d20 keep highest → more saves → less damage
+   *   Disadv → target rolls 2d20 keep lowest → fewer saves → more damage
+   * ───────────────────────────────────────────────────────────────── */
+  function computeSaveProbs(saveModifier, dc, rollMode) {
+    // Minimum face the target must roll to succeed (unclamped)
+    let targetRoll = dc - saveModifier;
+
+    // Clamp to [1, 21]: allows 100% success (targetRoll ≤ 1) and
+    // 0% success (targetRoll > 20) per RAW — no auto-fail on a natural 1.
+    if (targetRoll < 1)  targetRoll = 1;
+    if (targetRoll > 21) targetRoll = 21;
+
+    // Base probabilities (straight roll)
+    const baseSuccessChance = (21 - targetRoll) / 20.0;
+    const baseFailChance    = 1.0 - baseSuccessChance;
+
+    let successChance, failChance;
+
+    if (rollMode === 'advantage') {
+      // Target keeps highest of 2d20 → more likely to succeed
+      // P(success_adv) = 1 - P(fail)^2
+      failChance    = baseFailChance * baseFailChance;
+      successChance = 1.0 - failChance;
+    } else if (rollMode === 'disadvantage') {
+      // Target keeps lowest of 2d20 → less likely to succeed
+      // P(success_dis) = P(success)^2
+      successChance = baseSuccessChance * baseSuccessChance;
+      failChance    = 1.0 - successChance;
+    } else {
+      // Straight roll
+      successChance = baseSuccessChance;
+      failChance    = baseFailChance;
+    }
+
+    // Clamp to [0, 1] to absorb any floating-point drift
+    successChance = Math.min(Math.max(successChance, 0.0), 1.0);
+    failChance    = Math.min(Math.max(failChance,    0.0), 1.0);
+
+    return { successChance, failChance };
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
    * computeVexAttackSequence
    *
-   * NEW: Accepts hasElvenAccuracy to properly process Advantage upgrades 
-   * throughout the Vex attack chain.
+   * Vex grants Advantage on the next attack against the same target.
+   * Elven Accuracy fires on any Advantage, including Vex-granted —
+   * so vexUpgrade always produces 'advantage' and lets computeAttackProbs
+   * handle the EA upgrade internally via hasElvenAccuracy.
+   *
+   * Disadvantage + Vex-granted Advantage cancel to a straight roll
+   * (RAW: Adv and Disadv together = straight regardless of sources).
    * ───────────────────────────────────────────────────────────────── */
   function computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, startRollMode, hasElvenAccuracy) {
-    
-    /* NEW: Corrected Vex upgrade path */
+
     function vexUpgrade(mode) {
       if (mode === 'elven')        return 'elven';
-      if (mode === 'advantage')    return hasElvenAccuracy ? 'elven' : 'advantage';
-      if (mode === 'disadvantage') return 'straight'; // dis + adv = straight, no Elven Accuracy
-      return hasElvenAccuracy ? 'elven' : 'advantage'; // straight -> advantage granted by Vex
+      if (mode === 'advantage')    return 'advantage'; // EA handled inside computeAttackProbs
+      if (mode === 'disadvantage') return 'straight';  // Adv + Disadv cancel per RAW
+      return 'advantage';                              // straight → Vex grants Advantage; EA fires if active
     }
 
     const result = [];
-    let pAdvState = 0.0; // P(this attack has Vex advantage from prior hit)
+    let pAdvState = 0.0;
 
     for (let i = 0; i < numAttacks; i++) {
       if (i === 0) {
-        // First attack: always base mode
         const probs = computeAttackProbs(baseMissChance, critThreshold, startRollMode, hasElvenAccuracy);
         result.push(probs);
-        // P(hit) on attack 1 = critChance + normalHitChance; this gives Vex adv on attack 2
         pAdvState = probs.critChance + probs.normalHitChance;
       } else {
-        // This attack: mix of (pAdvState) rolling with vexUpgrade(startRollMode)
-        //              and (1 - pAdvState) rolling with startRollMode
         const baseProbs = computeAttackProbs(baseMissChance, critThreshold, startRollMode, hasElvenAccuracy);
+        // Pass hasElvenAccuracy so EA fires on Vex-granted Advantage too
         const advProbs  = computeAttackProbs(baseMissChance, critThreshold, vexUpgrade(startRollMode), hasElvenAccuracy);
 
         const blended = {
@@ -925,7 +1387,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
           normalHitChance: pAdvState * advProbs.normalHitChance + (1 - pAdvState) * baseProbs.normalHitChance,
         };
         result.push(blended);
-        // P(hit) on this attack → feeds next attack's Vex adv state
         pAdvState = blended.critChance + blended.normalHitChance;
       }
     }
@@ -950,8 +1411,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     const gwf            = gwfEl.checked;
     const grazeOn        = grazeEl.checked;
     const vexOn          = vexEl.checked;
-
-    /* NEW: Removed the block that forced `advantage` to true if Elven Accuracy was checked */
 
     const toHitResult    = parseAndClampInt(document.getElementById('toHit').value,    'toHit');
     const dmgBonusResult = parseAndClampInt(document.getElementById('dmgBonus').value, 'dmgBonus');
@@ -995,7 +1454,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     const critDmg      = (2 * avgDice) + dmgBonus;
     const bonusCritDmg = 2 * avgBonusDice;
 
-    /* NEW: Derive baseRollMode purely from Advantage/Disadvantage toggles */
     let baseRollMode = 'straight';
     if (advantage) baseRollMode = 'advantage';
     else if (disadvantage) baseRollMode = 'disadvantage';
@@ -1012,13 +1470,11 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
       const baseMissChance = (targetRoll - 1) / 20.0;
 
-      let attackProbs; // array of { missChance, critChance, normalHitChance }
+      let attackProbs;
 
       if (vexOn && numAttacks > 1) {
-        /* NEW: Passing elvenAccuracy parameter */
         attackProbs = computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, baseRollMode, elvenAccuracy);
       } else {
-        /* NEW: Passing elvenAccuracy parameter */
         const probs = computeAttackProbs(baseMissChance, critThreshold, baseRollMode, elvenAccuracy);
         attackProbs = Array(numAttacks).fill(probs);
       }
@@ -1034,19 +1490,20 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       }
 
       // ── Bonus dice (Sneak Attack / Smite): once per turn on first hit ──
-      let pAllMiss = 1.0;
-      for (let i = 0; i < numAttacks; i++) pAllMiss *= attackProbs[i].missChance;
-      const pAtLeastOneHit = 1.0 - pAllMiss;
-
-      let pAllNonCrit = 1.0;
-      for (let i = 0; i < numAttacks; i++) pAllNonCrit *= (1.0 - attackProbs[i].critChance);
-      const pAtLeastOneCrit = 1.0 - pAllNonCrit;
-
-      const pBonusNormalHit = Math.max(0, pAtLeastOneHit - pAtLeastOneCrit);
-      const expectedBonus   = (pBonusNormalHit * avgBonusDice) + (pAtLeastOneCrit * bonusCritDmg);
+      let expectedBonus = 0;
+      if (bonusGroups.length > 0) {
+        let pPriorAllMiss = 1.0;
+        for (let i = 0; i < numAttacks; i++) {
+          const p = attackProbs[i];
+          const pHit  = p.normalHitChance + p.critChance;
+          const pFirstHitNormal = pPriorAllMiss * p.normalHitChance;
+          const pFirstHitCrit   = pPriorAllMiss * p.critChance;
+          expectedBonus += pFirstHitNormal * avgBonusDice + pFirstHitCrit * bonusCritDmg;
+          pPriorAllMiss *= (1.0 - pHit);
+        }
+      }
 
       const totalExpected = totalWeaponExpected + expectedBonus;
-
       const singleExpectedWeapon = totalWeaponExpected / numAttacks;
 
       rows.push({ ac, totalExpected, singleExpectedWeapon });
@@ -1054,11 +1511,10 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
     const maxExpected = rows.reduce((m, r) => Math.max(m, r.totalExpected), 0);
 
-    /* NEW: Corrected the mode string builder for Elven Accuracy */
     let modeStr = '';
     if (advantage) modeStr = 'Advantage';
     else if (disadvantage) modeStr = 'Disadvantage';
-    if (elvenAccuracy) modeStr = modeStr ? modeStr + ' + Elven Acc' : 'Elven Acc';
+    if (elvenAccuracy) modeStr = modeStr ? modeStr + ' + Elven Acc' : 'Elven Acc (no Adv)';
     
     const bonusStr     = dmgBonus >= 0 ? ` + ${dmgBonus}` : ` ${dmgBonus}`;
     const modeLabel    = modeStr ? ` · ${modeStr}` : '';
@@ -1291,6 +1747,96 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     });
   }
 
+  /* ── Spell export listeners ── */
+  function bindSpellExportListeners() {
+    document.getElementById('spell-export-tsv').addEventListener('click', () => {
+      if (!currentSpellCalcData) return;
+      const { rows, diceLabel, dc, halfLabel, modeLabel } = currentSpellCalcData;
+      const header = 'Save Modifier\tExpected Damage';
+      const body   = rows.map(r =>
+        `${sanitizeCell('+' + r.saveMod)}\t${sanitizeCell(r.totalExpected.toFixed(2))}`
+      ).join('\n');
+      const meta = `# D&D Spell Damage — ${sanitizeCell(diceLabel)} · DC ${sanitizeCell(String(dc))}${sanitizeCell(halfLabel)}${sanitizeCell(modeLabel)}`;
+      copyText(`${meta}\n${header}\n${body}`);
+      showToast('✦ TSV copied — paste into Excel, Sheets, or Word');
+    });
+
+    document.getElementById('spell-export-csv').addEventListener('click', () => {
+      if (!currentSpellCalcData) return;
+      const { rows, diceLabel, dc, halfLabel, modeLabel } = currentSpellCalcData;
+      const header = '"Save Modifier","Expected Damage"';
+      const body   = rows.map(r =>
+        `"${sanitizeCell('+' + r.saveMod)}","${sanitizeCell(r.totalExpected.toFixed(2))}"`
+      ).join('\n');
+      const meta = `"# D&D Spell Damage — ${sanitizeCell(diceLabel)} · DC ${sanitizeCell(String(dc))}${sanitizeCell(halfLabel)}${sanitizeCell(modeLabel)}"`;
+      copyText(`${meta}\n${header}\n${body}`);
+      showToast('✦ CSV copied to clipboard');
+    });
+
+    document.getElementById('spell-export-img').addEventListener('click', () => {
+      if (!currentSpellCalcData) return;
+      if (typeof Chart === 'undefined') { showToast('⚠ Graph is unavailable'); return; }
+
+      const paneChart = document.getElementById('spell-pane-chart');
+      const paneTable = document.getElementById('spell-pane-table');
+      const tabChart  = document.querySelector('[data-tab="spell-chart"]');
+      const tabTable  = document.querySelector('[data-tab="spell-table"]');
+      const wasHidden = !paneChart.classList.contains('active');
+      if (wasHidden) {
+        if (paneTable) paneTable.classList.remove('active');
+        if (tabTable)  { tabTable.classList.remove('active'); tabTable.setAttribute('aria-selected', 'false'); }
+        paneChart.classList.add('active');
+        if (tabChart)  { tabChart.classList.add('active'); tabChart.setAttribute('aria-selected', 'true'); }
+      }
+
+      const canvas = document.getElementById('spell-dmg-chart');
+      if (!canvas) { showToast('⚠ Chart canvas not found'); return; }
+      if (chartInstance) chartInstance.resize();
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width  = canvas.width;
+      tempCanvas.height = canvas.height;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.fillStyle = '#2a2a2e';
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      ctx.drawImage(canvas, 0, 0);
+
+      try {
+        if (navigator.clipboard && window.ClipboardItem) {
+          tempCanvas.toBlob(blob => {
+            if (!blob) { showToast('⚠ Could not generate image'); return; }
+            try {
+              const item = new ClipboardItem({ 'image/png': blob });
+              navigator.clipboard.write([item])
+                .then(() => showToast('✦ Chart image copied to clipboard'))
+                .catch(err => {
+                  console.warn('Clipboard write failed, downloading instead:', err);
+                  showToast('⚠ Clipboard blocked — downloading as PNG');
+                  downloadFallback(blob);
+                });
+            } catch (err) {
+              const p = Promise.resolve(blob);
+              const item = new ClipboardItem({ 'image/png': p });
+              navigator.clipboard.write([item])
+                .then(() => showToast('✦ Chart image copied to clipboard'))
+                .catch(() => downloadFallback(blob));
+            }
+          });
+        } else {
+          showToast('⚠ Copy not supported — downloading as PNG');
+          tempCanvas.toBlob(blob => {
+            if (blob) downloadFallback(blob);
+            else showToast('⚠ Could not generate image');
+          });
+        }
+      } catch (err) {
+        showToast('⚠ Error — downloading as PNG');
+        console.warn('Clipboard image error:', err);
+        tempCanvas.toBlob(blob => { if (blob) downloadFallback(blob); });
+      }
+    });
+  }
+
   function downloadFallback(blob) {
     const url = URL.createObjectURL(blob);
     const a   = el('a', { href: url, download: 'dnd-damage-chart.png' });
@@ -1373,6 +1919,71 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     });
   }
 
+  /* ── Spell chart rendering ── */
+  function renderSpellChart(rows, modeLabel) {
+    const canvas = document.getElementById('spell-dmg-chart');
+    if (!canvas) return;
+
+    if (typeof Chart === 'undefined') {
+      const chartWrap = canvas.parentElement;
+      chartWrap.removeChild(canvas);
+      const errMsg = el('div', {
+        style: { color: 'var(--blade)', textAlign: 'center', paddingTop: '80px', fontFamily: "'Cinzel', serif", fontSize: '0.75rem' }
+      }, 'Graph unavailable (Chart.js blocked or failed to load).');
+      chartWrap.appendChild(errMsg);
+      return;
+    }
+
+    const labels   = rows.map(r => `+${r.saveMod} Save`);
+    const dmgData  = rows.map(r => parseFloat(r.totalExpected.toFixed(2)));
+
+    chartInstance = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Expected Damage', data: dmgData, borderColor: '#e8b84b',
+            backgroundColor: 'rgba(200,146,42,0.12)', borderWidth: 2.5,
+            pointBackgroundColor: '#e8b84b', pointRadius: 4, pointHoverRadius: 6,
+            tension: 0.35, fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 0 },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#d4c49a',
+              font: { family: "'Cinzel', serif", size: 11 },
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: '#26262d', borderColor: '#5a5a66', borderWidth: 1,
+            titleColor: '#e8b84b', bodyColor: '#f0e6cc',
+            titleFont: { family: "'Cinzel', serif", size: 11 },
+            bodyFont:  { family: "'IM Fell English', serif", size: 12 }
+          }
+        },
+        scales: {
+          x: {
+            grid:  { color: 'rgba(90,90,102,0.3)' },
+            ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } }
+          },
+          y: {
+            grid:  { color: 'rgba(90,90,102,0.3)' },
+            ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } },
+            title: { display: true, text: 'Expected Damage', color: '#7a5518', font: { family: "'Cinzel', serif", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
   /* ── Clipboard helpers ── */
   function copyText(str) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1389,13 +2000,16 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
     document.body.appendChild(ta);
     ta.select();
+    let succeeded = false;
     try {
-      document.execCommand('copy');
+      succeeded = document.execCommand('copy');
     } catch (e) {
-      showToast('⚠ Copy failed — please copy manually');
       console.warn('execCommand copy failed:', e);
     }
     document.body.removeChild(ta);
+    if (!succeeded) {
+      showToast('⚠ Copy failed — please copy manually');
+    }
   }
 
   /* ── Card visual sync helper ── */
@@ -1417,7 +2031,11 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
   function syncGrazeRow() {
     const row = document.getElementById('graze-input-row');
     if (row) {
-      row.style.display = document.getElementById('graze').checked ? 'grid' : 'none';
+      if (document.getElementById('graze').checked) {
+        row.classList.remove('hidden');
+      } else {
+        row.classList.add('hidden');
+      }
     }
   }
 
@@ -1490,7 +2108,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     const graze = document.getElementById('graze');
     const vex  = document.getElementById('vex');
 
-    /* NEW: Adjusted mutex logic. Elven accuracy no longer forces advantage. */
     adv.addEventListener('change', () => {
       if (adv.checked) dis.checked = false;
       syncAllCards();
@@ -1521,6 +2138,32 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     });
   }
 
+  /* ── Global nav tab switching ── */
+  function setupGlobalNav() {
+    const tabAttack = document.getElementById('tab-attack');
+    const tabSpell  = document.getElementById('tab-spell');
+    const viewAttack = document.getElementById('attack-calculator-view');
+    const viewSpell  = document.getElementById('spell-calculator-view');
+
+    function switchTo(activeTab, activeView, inactiveTab, inactiveView) {
+      activeTab.classList.add('active');
+      activeTab.setAttribute('aria-selected', 'true');
+      inactiveTab.classList.remove('active');
+      inactiveTab.setAttribute('aria-selected', 'false');
+      activeView.classList.add('active');
+      inactiveView.classList.remove('active');
+      // Clear results when switching away from attack view
+      if (activeView !== viewAttack) {
+        const resultsDiv = document.getElementById('results-container');
+        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+        while (resultsDiv.firstChild) resultsDiv.removeChild(resultsDiv.firstChild);
+      }
+    }
+
+    tabAttack.addEventListener('click', () => switchTo(tabAttack, viewAttack, tabSpell, viewSpell));
+    tabSpell.addEventListener('click',  () => switchTo(tabSpell,  viewSpell,  tabAttack, viewAttack));
+  }
+
   /* ── Boot ── */
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('weaponDice').addEventListener('input', () => { updateDiceTags(); updateCombatBadge(); });
@@ -1532,7 +2175,21 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     document.getElementById('extraCritDice').addEventListener('input', updateAdvancedBadge);
     document.getElementById('grazeDamage').addEventListener('input', updateCombatBadge);
     document.getElementById('calc-btn').addEventListener('click', calculateExpectedDamage);
+    setupGlobalNav();
     setupToggleMutex();
+    setupSpellToggles();
+    syncAllCards();
+    syncGrazeRow();
+    updateAllBadges();
+    updateDiceTags();
+    // Spell panel init
+    updateSpellDiceTags();
+    updateSpellParamsBadge();
+    updateSpellMechanicsBadge();
+    updateSpellRollModeBadge();
+    document.getElementById('spellDice').addEventListener('input', () => { updateSpellDiceTags(); updateSpellParamsBadge(); });
+    document.getElementById('spellSaveDC').addEventListener('input', updateSpellParamsBadge);
+    document.getElementById('spell-calc-btn').addEventListener('click', calculateSpellExpectedDamage);
     syncAllCards();
     syncGrazeRow();
     updateAllBadges();
@@ -1542,5 +2199,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
 }());
 </script>
+
 </body>
 </html>
