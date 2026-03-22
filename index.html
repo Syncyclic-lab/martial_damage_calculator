@@ -1,20 +1,15 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="D&D 5e Average Damage Calculator — compute expected damage per turn across AC 10–20">
-
 <meta http-equiv="Content-Security-Policy"
 content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';">
-
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-
   <title>D&amp;D Damage Calculator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
-
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -40,10 +35,7 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     .header { text-align: center; padding: 32px 20px 24px; position: relative; }
     .crest { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px; }
     .crest-line { flex: 1; height: 2px; background: linear-gradient(to right, transparent, var(--gold), transparent); max-width: 120px; }
-    .crest-icon {
-      font-size: 2.4rem;
-      animation: flicker 4s ease-in-out infinite;
-    }
+    .crest-icon { font-size: 2.4rem; animation: flicker 4s ease-in-out infinite; }
     @keyframes flicker {
       0%,100% { filter: drop-shadow(0 0 8px var(--glow)); }
       50%      { filter: drop-shadow(0 0 18px rgba(200,146,42,0.6)); }
@@ -53,17 +45,13 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       font-size: clamp(1.1rem, 4.5vw, 1.75rem);
       color: var(--gold-light);
       text-shadow: 0 2px 12px var(--glow), 0 0 40px rgba(200,146,42,0.2);
-      letter-spacing: 0.04em;
-      line-height: 1.25;
+      letter-spacing: 0.04em; line-height: 1.25;
     }
     .header .subtitle {
       font-family: 'Cinzel', serif;
       font-size: clamp(0.65rem, 2.5vw, 0.8rem);
-      color: var(--parchment-dark);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-top: 6px;
-      opacity: 0.8;
+      color: var(--parchment-dark); letter-spacing: 0.25em;
+      text-transform: uppercase; margin-top: 6px; opacity: 0.8;
     }
 
     /* ── Panels ── */
@@ -77,11 +65,9 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       content: ''; position: absolute; width: 14px; height: 14px;
       border-color: var(--gold-dim); border-style: solid;
     }
-    .panel::before  { top: 6px;  left: 6px;  border-width: 1px 0 0 1px; }
-    .panel::after   { top: 6px;  right: 6px; border-width: 1px 1px 0 0; }
-    .panel-corners {
-      position: absolute; inset: 0; pointer-events: none;
-    }
+    .panel::before  { top: 6px; left: 6px;  border-width: 1px 0 0 1px; }
+    .panel::after   { top: 6px; right: 6px; border-width: 1px 1px 0 0; }
+    .panel-corners { position: absolute; inset: 0; pointer-events: none; }
     .panel-corners::before, .panel-corners::after {
       content: ''; position: absolute; width: 14px; height: 14px;
       border-color: var(--gold-dim); border-style: solid;
@@ -91,12 +77,10 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
     .mb-14 { margin-bottom: 14px; }
     .mb-0  { margin-bottom: 0 !important; }
-    .flex-center-gap { display: flex; align-items: center; gap: 6px; }
-    .icon-large { font-size: 1rem; }
 
     /* ── Form grid ── */
-    .form-grid   { display: grid; grid-template-columns: 1fr 1fr;       gap: 14px; }
-    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr;   gap: 14px; }
+    .form-grid   { display: grid; grid-template-columns: 1fr 1fr;     gap: 14px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
     .form-group  { display: flex; flex-direction: column; }
     .form-group.full { grid-column: 1 / -1; }
     label {
@@ -105,38 +89,27 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     }
 
     /* ── Inputs ── */
-    input[type="number"],
-    input[type="text"],
-    select {
+    input[type="number"], input[type="text"], select {
       background: var(--iron); border: 1px solid var(--blade); border-radius: 3px;
       color: var(--parchment);
       font-family: 'IM Fell English', Georgia, serif; font-size: 1.05rem;
       padding: 10px 12px; width: 100%;
-      -webkit-appearance: none;
-      -moz-appearance: textfield;
-      appearance: none;
+      -webkit-appearance: none; appearance: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     select {
-      -webkit-appearance: none;
-      appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23c8922a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 32px;
-      cursor: pointer;
+      background-repeat: no-repeat; background-position: right 12px center;
+      padding-right: 32px; cursor: pointer;
     }
     select option { background: var(--iron); color: var(--parchment); }
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type="number"]:focus,
-    input[type="text"]:focus,
-    select:focus {
+    input[type="number"]:focus, input[type="text"]:focus, select:focus {
       outline: none; border-color: var(--gold);
       box-shadow: 0 0 0 2px rgba(200,146,42,0.2);
     }
     input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
-
     .input-hint {
       font-family: 'Cinzel', serif; font-size: 0.58rem;
       letter-spacing: 0.08em; color: var(--blade); margin-top: 5px;
@@ -144,15 +117,14 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
     /* ── Toggle cards ── */
     .toggle-group { margin-bottom: 12px; }
-    .toggle-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-    }
-    .toggle-grid-2 {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    }
-    .toggle-grid-solo {
-      display: grid; grid-template-columns: 1fr; gap: 8px;
-    }
+    .toggle-grid         { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .toggle-grid-2       { display: grid; grid-template-columns: 1fr 1fr;        gap: 8px; }
+    .toggle-grid-solo    { display: grid; grid-template-columns: 1fr;            gap: 8px; }
+    /* 4-column grid for Nick+Graze+Vex row */
+    .toggle-grid-3       { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    /* fighting styles: GWF + TWF side by side */
+    .toggle-grid-styles  { display: grid; grid-template-columns: 1fr 1fr;        gap: 8px; }
+
     .toggle-card input[type="checkbox"] {
       position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
     }
@@ -176,21 +148,17 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       box-shadow: 0 0 10px rgba(200,146,42,0.18), inset 0 0 6px rgba(200,146,42,0.06);
     }
     .toggle-card.is-checked::before { opacity: 0.1; }
-    .toggle-card-header {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
-    }
+    .toggle-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
     .toggle-card-icon { font-size: 1.1rem; line-height: 1; flex-shrink: 0; }
     .toggle-card-name {
       font-family: 'Cinzel', serif; font-size: 0.68rem; font-weight: 600;
       letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--parchment-dark);
-      transition: color 0.2s;
+      color: var(--parchment-dark); transition: color 0.2s;
     }
     .toggle-card.is-checked .toggle-card-name { color: var(--gold-light); }
     .toggle-card-desc {
       font-family: 'IM Fell English', Georgia, serif; font-size: 0.72rem;
-      font-style: italic; color: var(--blade); line-height: 1.35;
-      transition: color 0.2s;
+      font-style: italic; color: var(--blade); line-height: 1.35; transition: color 0.2s;
     }
     .toggle-card.is-checked .toggle-card-desc { color: var(--parchment-dark); }
     .toggle-card-pip {
@@ -200,16 +168,13 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       background: var(--iron); transition: all 0.2s;
       display: flex; align-items: center; justify-content: center;
     }
-    .toggle-card.is-checked .toggle-card-pip {
-      border-color: var(--gold); background: var(--gold-dim);
-    }
+    .toggle-card.is-checked .toggle-card-pip { border-color: var(--gold); background: var(--gold-dim); }
     .toggle-card-pip::after {
       content: '✦'; font-size: 0.5rem; color: var(--gold-light);
       opacity: 0; transition: opacity 0.15s;
     }
     .toggle-card.is-checked .toggle-card-pip::after { opacity: 1; }
 
-    /* Mastery badge on toggle card */
     .mastery-badge {
       display: inline-block;
       font-family: 'Cinzel', serif; font-size: 0.52rem;
@@ -223,69 +188,82 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       border-color: rgba(192,57,43,0.6);
     }
 
-    /* Graze input row inside weapon section */
+    /* ── Graze + Off-hand input rows ── */
     .graze-row {
       display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
       margin-top: 12px; padding-top: 12px;
       border-top: 1px solid rgba(90,90,102,0.35);
     }
     .graze-row.hidden { display: none; }
+
+    /* Off-hand dice input row — unhides when TWF active */
+    .offhand-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+      margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid rgba(90,90,102,0.35);
+    }
+    .offhand-row.hidden { display: none; }
+
     .mastery-label {
-      font-family: 'IM Fell English', serif;
-      font-style: italic; font-size: 0.8em;
+      font-family: 'IM Fell English', serif; font-style: italic; font-size: 0.8em;
       text-transform: none; letter-spacing: normal;
     }
     .graze-info-box {
-      background: rgba(139,26,26,0.12);
-      border: 1px solid rgba(139,26,26,0.3);
+      background: rgba(139,26,26,0.12); border: 1px solid rgba(139,26,26,0.3);
       border-radius: 4px; padding: 10px 12px;
     }
     .graze-info-label {
       font-family: 'Cinzel', serif; font-size: 0.6rem;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: #e07070; margin-bottom: 4px;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #e07070; margin-bottom: 4px;
     }
     .graze-info-text {
-      font-family: 'IM Fell English', serif;
-      font-style: italic; font-size: 0.78rem;
-      color: var(--parchment-dark); line-height: 1.4;
+      font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: 0.78rem; color: var(--parchment-dark); line-height: 1.4;
     }
     .graze-align-end { justify-content: flex-end; }
 
+    /* Info box reused for offhand explanation */
+    .info-box {
+      background: rgba(42,42,46,0.7); border: 1px solid var(--blade);
+      border-radius: 4px; padding: 10px 12px;
+    }
+    .info-box-label {
+      font-family: 'Cinzel', serif; font-size: 0.6rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--gold-dim); margin-bottom: 4px;
+    }
+    .info-box-text {
+      font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: 0.78rem; color: var(--parchment-dark); line-height: 1.4;
+    }
+
     @media (max-width: 540px) {
-      .toggle-grid { grid-template-columns: 1fr 1fr; }
-      .toggle-grid-2 { grid-template-columns: 1fr; }
+      .toggle-grid    { grid-template-columns: 1fr 1fr; }
+      .toggle-grid-2  { grid-template-columns: 1fr; }
+      .toggle-grid-3  { grid-template-columns: 1fr 1fr; }
+      .toggle-grid-styles { grid-template-columns: 1fr; }
     }
     @media (max-width: 360px) {
-      .toggle-grid { grid-template-columns: 1fr; }
+      .toggle-grid   { grid-template-columns: 1fr; }
+      .toggle-grid-2 { grid-template-columns: 1fr; }
+      .toggle-grid-3 { grid-template-columns: 1fr; }
     }
 
-    /* ── Accordion sections ── */
+    /* ── Accordion ── */
     .accordion {
       border: 1px solid var(--blade); border-radius: 5px;
-      margin-bottom: 8px; overflow: hidden;
-      transition: border-color 0.2s;
+      margin-bottom: 8px; overflow: hidden; transition: border-color 0.2s;
     }
     .accordion[open] { border-color: var(--gold-dim); }
-
     .accordion-trigger {
-      display: block;
-      padding: 0;
-      cursor: pointer;
-      list-style: none;
-      user-select: none;
-      background: none;
-      transition: background 0.2s;
+      display: block; padding: 0; cursor: pointer;
+      list-style: none; user-select: none; background: none;
     }
     .accordion-trigger { list-style: none; }
     .accordion-trigger::-webkit-details-marker { display: none; }
-    .accordion-trigger:focus-visible {
-      outline: 2px solid var(--gold);
-      outline-offset: -2px;
-    }
+    .accordion-trigger:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
     .accordion-trigger-inner {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
       background: linear-gradient(90deg, rgba(61,61,68,0.9) 0%, rgba(42,42,46,0.9) 100%);
       transition: background 0.2s;
     }
@@ -296,53 +274,39 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     .accordion-trigger:hover .accordion-trigger-inner {
       background: linear-gradient(90deg, rgba(90,90,102,0.5) 0%, rgba(42,42,46,0.9) 100%);
     }
-
     .accordion-icon { font-size: 1rem; flex-shrink: 0; }
-
     .accordion-label {
-      font-family: 'Cinzel', serif; font-size: 0.72rem;
-      font-weight: 600; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--parchment-dark);
-      flex: 1;
-      transition: color 0.2s;
+      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--parchment-dark); flex: 1; transition: color 0.2s;
     }
     .accordion[open] .accordion-label { color: var(--gold-light); }
-
     .accordion-badge {
       font-family: 'Cinzel', serif; font-size: 0.58rem;
       letter-spacing: 0.1em; text-transform: uppercase;
       background: var(--gold-dim); color: var(--gold-light);
       border: 1px solid var(--gold-dim); border-radius: 3px;
-      padding: 2px 7px; opacity: 0;
-      transition: opacity 0.2s;
-      white-space: nowrap; max-width: 180px;
-      overflow: hidden; text-overflow: ellipsis;
+      padding: 2px 7px; opacity: 0; transition: opacity 0.2s;
+      white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis;
     }
     .accordion:not([open]) .accordion-badge.has-value { opacity: 1; }
-
     .accordion-chevron {
       width: 16px; height: 16px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       transition: transform 0.25s ease;
     }
     .accordion-chevron::after {
-      content: '';
-      display: block; width: 7px; height: 7px;
-      border-right: 2px solid var(--gold-dim);
-      border-bottom: 2px solid var(--gold-dim);
-      transform: rotate(45deg) translate(-1px,-1px);
-      transition: border-color 0.2s;
+      content: ''; display: block; width: 7px; height: 7px;
+      border-right: 2px solid var(--gold-dim); border-bottom: 2px solid var(--gold-dim);
+      transform: rotate(45deg) translate(-1px,-1px); transition: border-color 0.2s;
     }
     .accordion[open] .accordion-chevron { transform: rotate(180deg); }
     .accordion[open] .accordion-chevron::after { border-color: var(--gold); }
-
     .accordion-body {
       padding: 16px 16px 14px;
       background: linear-gradient(160deg, rgba(38,38,45,0.97) 0%, rgba(30,30,36,0.97) 100%);
     }
-    .accordion[open] .accordion-body {
-      animation: sweep 0.25s ease-in-out;
-    }
+    .accordion[open] .accordion-body { animation: sweep 0.25s ease-in-out; }
     @keyframes sweep {
       0%   { opacity: 0; transform: translateY(-8px); }
       100% { opacity: 1; transform: translateY(0); }
@@ -375,7 +339,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       box-shadow: 0 6px 24px rgba(139,26,26,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
     }
     .calc-btn:active { transform: translateY(1px); }
-
     .error-msg {
       color: #ff6b6b; font-family: 'Cinzel', serif;
       font-size: 0.75rem; letter-spacing: 0.08em;
@@ -406,10 +369,7 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       letter-spacing: 0.1em; color: var(--blade);
       text-align: center; margin-bottom: 16px;
     }
-    .table-scroll {
-      width: 100%; overflow-x: auto;
-      overscroll-behavior-x: contain;
-    }
+    .table-scroll { width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
     table { width: 100%; min-width: 320px; border-collapse: collapse; }
     thead tr { background: linear-gradient(90deg, var(--blood) 0%, #5a1010 100%); }
     th {
@@ -452,14 +412,12 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     .view-tab.active { background: linear-gradient(135deg, var(--blood) 0%, #6b1111 100%); color: var(--gold-light); border-color: var(--blood); }
     .view-pane        { display: none; }
     .view-pane.active { display: block; }
-
     .chart-wrap {
       position: relative; width: 100%;
-      min-height: 220px; height: 300px; max-height: 400px;
-      padding: 8px 0;
+      min-height: 220px; height: 300px; max-height: 400px; padding: 8px 0;
     }
 
-    /* ── Global nav tabs ── */
+    /* ── Global nav ── */
     .global-nav {
       display: flex; gap: 0; margin-bottom: 20px;
       border: 1px solid var(--blade); border-radius: 4px; overflow: hidden;
@@ -478,17 +436,8 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       background: linear-gradient(135deg, var(--blood) 0%, #6b1111 100%);
       color: var(--gold-light); border-color: var(--blood);
     }
-
-    /* ── Calculator view wrappers ── */
     .calc-view { display: none; }
     .calc-view.active { display: block; }
-
-    /* ── Spell calculator placeholder ── */
-    .spell-placeholder {
-      text-align: center; padding: 60px 20px;
-      font-family: 'IM Fell English', Georgia, serif;
-      font-style: italic; color: var(--blade); font-size: 1rem;
-    }
 
     /* ── Export bar ── */
     .export-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
@@ -503,7 +452,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     .export-btn:hover  { border-color: var(--gold); color: var(--gold-light); background: rgba(200,146,42,0.08); }
     .export-btn:active { transform: translateY(1px); }
     .export-btn .btn-icon { font-size: 0.9rem; }
-
     .export-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .export-btn:disabled:hover { border-color: var(--blade); color: var(--parchment-dark); background: var(--steel); }
 
@@ -532,14 +480,14 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       .export-bar { flex-direction: column; }
       .export-btn { flex: none; width: 100%; }
       .chart-wrap { min-height: 180px; height: 220px; }
-      .graze-row { grid-template-columns: 1fr; }
+      .graze-row, .offhand-row { grid-template-columns: 1fr; }
     }
     @media (max-width: 360px) {
       .toggle-grid { grid-template-columns: 1fr; }
       .toggle-grid-2 { grid-template-columns: 1fr; }
+      .toggle-grid-3 { grid-template-columns: 1fr; }
     }
   </style>
-
 </head>
 <body>
 <div class="page-wrapper">
@@ -554,8 +502,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     <p class="subtitle">Expected Damage &bull; D&amp;D 5e</p>
   </header>
 
-  <!-- ── Global Navigation ── -->
-
   <nav class="global-nav" role="tablist" aria-label="Calculator mode">
     <button class="global-nav-tab active" id="tab-attack" role="tab"
             aria-selected="true" aria-controls="attack-calculator-view" type="button">
@@ -568,378 +514,411 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
   </nav>
 
   <!-- ── Attack Calculator View ── -->
-
   <div id="attack-calculator-view" class="calc-view active" role="tabpanel" aria-labelledby="tab-attack">
 
   <div class="panel" id="input-panel">
     <div class="panel-corners" aria-hidden="true"></div>
 
-```
-<details class="accordion" id="acc-combat" open>
-  <summary class="accordion-trigger">
-    <div class="accordion-trigger-inner">
-      <span class="accordion-icon">⚔️</span>
-      <span class="accordion-label">Combat Parameters</span>
-      <span class="accordion-badge" id="badge-combat"></span>
-      <span class="accordion-chevron" aria-hidden="true"></span>
-    </div>
-  </summary>
-  <div class="accordion-body">
-    <div class="form-grid">
-      <div class="form-group">
-        <label for="toHit">To Hit Bonus</label>
-        <input type="number" id="toHit" value="6" min="-5" max="20" aria-label="To hit bonus">
-      </div>
-      <div class="form-group">
-        <label for="dmgBonus">Damage Bonus</label>
-        <input type="number" id="dmgBonus" value="4" min="-10" max="30" aria-label="Damage bonus">
-      </div>
-      <div class="form-group full">
-        <label for="weaponDice">Weapon Dice</label>
-        <input type="text" id="weaponDice" value="1d8" placeholder="e.g. 1d8, 2d6, 1d4"
-               aria-label="Weapon dice notation" maxlength="60"
-               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        <div class="input-hint">Separate multiple dice groups with commas &mdash; e.g. 1d8, 2d6, 1d4</div>
-        <div class="dice-summary" id="dice-tags"></div>
-      </div>
-    </div>
-  </div>
-</details>
-
-<details class="accordion" id="acc-advanced">
-  <summary class="accordion-trigger">
-    <div class="accordion-trigger-inner">
-      <span class="accordion-icon">⚙️</span>
-      <span class="accordion-label">Advanced Options</span>
-      <span class="accordion-badge" id="badge-advanced">Optional</span>
-      <span class="accordion-chevron" aria-hidden="true"></span>
-    </div>
-  </summary>
-  <div class="accordion-body">
-    <div class="form-grid-3 mb-14">
-      <div class="form-group">
-        <label for="numAttacks">Attacks / Turn</label>
-        <select id="numAttacks" aria-label="Number of attacks per turn">
-          <option value="1" selected>1 — Single</option>
-          <option value="2">2 — Extra Attack</option>
-          <option value="3">3 — 11th Level</option>
-          <option value="4">4 — 20th Level</option>
-        </select>
-        <div class="input-hint">Total attacks per action</div>
-      </div>
-      <div class="form-group">
-        <label for="critThreshold">Crit on a ...</label>
-        <select id="critThreshold" aria-label="Critical hit threshold">
-          <option value="20" selected>20 — Standard</option>
-          <option value="19">19–20 Champion</option>
-          <option value="18">18–20 Expanded</option>
-        </select>
-        <div class="input-hint">Champion / Hexblade</div>
-      </div>
-      <div class="form-group">
-        <label for="bonusDmgDice">Bonus Damage Dice</label>
-        <input type="text" id="bonusDmgDice" value="" placeholder="e.g. 3d6, 2d8"
-               aria-label="Once-per-turn bonus damage dice (Sneak Attack, Divine Strike)"
-               maxlength="60"
-               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        <div class="input-hint">Sneak Attack / Smite (once/turn, crits doubled)</div>
-      </div>
-    </div>
-    <div class="form-grid-3">
-      <div class="form-group">
-        <label for="extraCritDice">Extra Crit Dice</label>
-        <input type="text" id="extraCritDice" value="" placeholder="e.g. 1d12, 1d6"
-               aria-label="Extra dice added only on a critical hit, not doubled"
-               maxlength="60"
-               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        <div class="input-hint">Brutal Critical / Savage Attacks &mdash; added on crit, not doubled</div>
-      </div>
-    </div>
-  </div>
-</details>
-
-<details class="accordion" id="acc-rollmode">
-  <summary class="accordion-trigger">
-    <div class="accordion-trigger-inner">
-      <span class="accordion-icon">🎲</span>
-      <span class="accordion-label">Roll Mode</span>
-      <span class="accordion-badge" id="badge-rollmode">Optional</span>
-      <span class="accordion-chevron" aria-hidden="true"></span>
-    </div>
-  </summary>
-  <div class="accordion-body">
-    <div class="toggle-group mb-0">
-      <div class="toggle-grid" role="group" aria-label="Roll mode selection">
-
-        <label class="toggle-card" for="advantage" id="card-advantage">
-          <input type="checkbox" id="advantage" aria-label="Advantage — roll 2d20, keep highest">
-          <div class="toggle-card-pip" aria-hidden="true"></div>
-          <div class="toggle-card-header">
-            <span class="toggle-card-icon">🎲</span>
-            <span class="toggle-card-name">Advantage</span>
-          </div>
-          <span class="toggle-card-desc">Roll 2d20, keep the higher result. Doubles crit chance.</span>
-        </label>
-
-        <label class="toggle-card" for="disadvantage" id="card-disadvantage">
-          <input type="checkbox" id="disadvantage" aria-label="Disadvantage — roll 2d20, keep lowest">
-          <div class="toggle-card-pip" aria-hidden="true"></div>
-          <div class="toggle-card-header">
-            <span class="toggle-card-icon">💀</span>
-            <span class="toggle-card-name">Disadvantage</span>
-          </div>
-          <span class="toggle-card-desc">Roll 2d20, keep the lower result. Drastically reduces hit &amp; crit chance.</span>
-        </label>
-
-        <label class="toggle-card" for="elvenAccuracy" id="card-elvenAccuracy">
-          <input type="checkbox" id="elvenAccuracy" aria-label="Elven Accuracy — upgrades Advantage into a triple-roll">
-          <div class="toggle-card-pip" aria-hidden="true"></div>
-          <div class="toggle-card-header">
-            <span class="toggle-card-icon">🧝</span>
-            <span class="toggle-card-name">Elven Accuracy</span>
-          </div>
-          <span class="toggle-card-desc">When you have Advantage, roll 3d20 and keep the highest. Fires on any source of Advantage — including Vex. Half-elf/elf feat.</span>
-        </label>
-
-      </div>
-    </div>
-  </div>
-</details>
-
-<details class="accordion mb-0" id="acc-weapon">
-  <summary class="accordion-trigger">
-    <div class="accordion-trigger-inner">
-      <span class="accordion-icon">🗡️</span>
-      <span class="accordion-label">Weapon Style &amp; Mastery</span>
-      <span class="accordion-badge" id="badge-weapon">Optional</span>
-      <span class="accordion-chevron" aria-hidden="true"></span>
-    </div>
-  </summary>
-  <div class="accordion-body">
-
-    <div class="toggle-group mb-14">
-      <label style="display:block;margin-bottom:8px;">Fighting Style</label>
-      <div class="toggle-grid-solo" role="group" aria-label="Weapon fighting style">
-        <label class="toggle-card" for="gwf" id="card-gwf">
-          <input type="checkbox" id="gwf" aria-label="Great Weapon Fighting — reroll weapon dice results of 1 or 2">
-          <div class="toggle-card-pip" aria-hidden="true"></div>
-          <div class="toggle-card-header">
-            <span class="toggle-card-icon">⚔️</span>
-            <span class="toggle-card-name">Great Weapon Fighting</span>
-          </div>
-          <span class="toggle-card-desc">When you roll a 1 or 2 on a weapon damage die, reroll it and use the new result. Applies to weapon dice only.</span>
-        </label>
-      </div>
-    </div>
-
-    <div class="toggle-group mb-0">
-      <label style="display:block;margin-bottom:8px;">Weapon Mastery <span class="mastery-label">(5.5e / 2024 Rules)</span></label>
-      <div class="toggle-grid-2" role="group" aria-label="Weapon mastery selection">
-
-        <label class="toggle-card" for="graze" id="card-graze">
-          <input type="checkbox" id="graze" aria-label="Graze mastery — deal ability modifier damage on a miss">
-          <div class="toggle-card-pip" aria-hidden="true"></div>
-          <div class="toggle-card-header">
-            <span class="toggle-card-icon">🛡️</span>
-            <span class="toggle-card-name">Graze</span>
-          </div>
-          <span class="toggle-card-desc">On a miss, deal damage equal to your ability modifier. Creates a reliable damage floor against high-AC targets.</span>
-          <span class="mastery-badge">Greatsword · Glaive · Halberd</span>
-        </label>
-
-        <label class="toggle-card" for="vex" id="card-vex">
-          <input type="checkbox" id="vex" aria-label="Vex mastery — hitting grants advantage on your next attack">
-          <div class="toggle-card-pip" aria-hidden="true"></div>
-          <div class="toggle-card-header">
-            <span class="toggle-card-icon">👁️</span>
-            <span class="toggle-card-name">Vex</span>
-          </div>
-          <span class="toggle-card-desc">Hitting a target grants Advantage on your next attack against it. Cascading advantage across multi-attack turns.</span>
-          <span class="mastery-badge">Rapier · Shortbow · Hand Crossbow</span>
-        </label>
-
-      </div>
-
-      <div class="graze-row hidden" id="graze-input-row">
-        <div class="form-group">
-          <label for="grazeDamage">Graze Damage (Ability Modifier)</label>
-          <input type="number" id="grazeDamage" value="4" min="0" max="10"
-                 aria-label="Ability modifier used for Graze on-miss damage">
-          <div class="input-hint">Typically your STR or DEX modifier</div>
+    <!-- Combat Parameters -->
+    <details class="accordion" id="acc-combat" open>
+      <summary class="accordion-trigger">
+        <div class="accordion-trigger-inner">
+          <span class="accordion-icon">⚔️</span>
+          <span class="accordion-label">Combat Parameters</span>
+          <span class="accordion-badge" id="badge-combat"></span>
+          <span class="accordion-chevron" aria-hidden="true"></span>
         </div>
-        <div class="form-group graze-align-end">
-          <div class="graze-info-box">
-            <div class="graze-info-label">Effect</div>
-            <div class="graze-info-text">Every missed attack still deals your modifier in damage. Flattens the damage curve at high AC.</div>
+      </summary>
+      <div class="accordion-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="toHit">To Hit Bonus</label>
+            <input type="number" id="toHit" value="6" min="-5" max="20" aria-label="To hit bonus">
+          </div>
+          <div class="form-group">
+            <label for="dmgBonus">Damage Bonus</label>
+            <input type="number" id="dmgBonus" value="4" min="-10" max="30" aria-label="Damage bonus">
+          </div>
+          <div class="form-group full">
+            <label for="weaponDice">Weapon Dice</label>
+            <input type="text" id="weaponDice" value="1d6" placeholder="e.g. 1d8, 2d6, 1d4"
+                   aria-label="Weapon dice notation" maxlength="60"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="input-hint">Separate multiple dice groups with commas &mdash; e.g. 1d8, 2d6, 1d4</div>
+            <div class="dice-summary" id="dice-tags"></div>
           </div>
         </div>
       </div>
+    </details>
 
-    </div>
-  </div>
-</details>
+    <!-- Advanced Options -->
+    <details class="accordion" id="acc-advanced">
+      <summary class="accordion-trigger">
+        <div class="accordion-trigger-inner">
+          <span class="accordion-icon">⚙️</span>
+          <span class="accordion-label">Advanced Options</span>
+          <span class="accordion-badge" id="badge-advanced">Optional</span>
+          <span class="accordion-chevron" aria-hidden="true"></span>
+        </div>
+      </summary>
+      <div class="accordion-body">
+        <div class="form-grid-3 mb-14">
+          <div class="form-group">
+            <label for="numAttacks">Attacks / Turn</label>
+            <select id="numAttacks" aria-label="Number of attacks per turn">
+              <option value="1" selected>1 — Single</option>
+              <option value="2">2 — Extra Attack</option>
+              <option value="3">3 — 11th Level</option>
+              <option value="4">4 — 20th Level</option>
+            </select>
+            <div class="input-hint">Main-hand attacks per action</div>
+          </div>
+          <div class="form-group">
+            <label for="critThreshold">Crit on a ...</label>
+            <select id="critThreshold" aria-label="Critical hit threshold">
+              <option value="20" selected>20 — Standard</option>
+              <option value="19">19–20 Champion</option>
+              <option value="18">18–20 Expanded</option>
+            </select>
+            <div class="input-hint">Champion / Hexblade</div>
+          </div>
+          <div class="form-group">
+            <label for="bonusDmgDice">Bonus Damage Dice</label>
+            <input type="text" id="bonusDmgDice" value="" placeholder="e.g. 3d6, 2d8"
+                   aria-label="Once-per-turn bonus damage dice"
+                   maxlength="60" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="input-hint">Sneak Attack / Smite (once/turn, crits doubled)</div>
+          </div>
+        </div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="extraCritDice">Extra Crit Dice</label>
+            <input type="text" id="extraCritDice" value="" placeholder="e.g. 1d12, 1d6"
+                   aria-label="Extra dice added only on a critical hit"
+                   maxlength="60" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="input-hint">Brutal Critical / Savage Attacks &mdash; added on crit, not doubled</div>
+          </div>
+        </div>
+      </div>
+    </details>
 
-<button class="calc-btn" id="calc-btn" type="button" aria-label="Calculate expected damage" style="margin-top:16px">
-  ⚔ Strike &mdash; Calculate Damage
-</button>
-<div id="error-message" class="error-msg" role="alert" aria-live="polite"></div>
-```
+    <!-- Roll Mode -->
+    <details class="accordion" id="acc-rollmode">
+      <summary class="accordion-trigger">
+        <div class="accordion-trigger-inner">
+          <span class="accordion-icon">🎲</span>
+          <span class="accordion-label">Roll Mode</span>
+          <span class="accordion-badge" id="badge-rollmode">Optional</span>
+          <span class="accordion-chevron" aria-hidden="true"></span>
+        </div>
+      </summary>
+      <div class="accordion-body">
+        <div class="toggle-group mb-0">
+          <div class="toggle-grid" role="group" aria-label="Roll mode selection">
 
-  </div>
+            <label class="toggle-card" for="advantage" id="card-advantage">
+              <input type="checkbox" id="advantage" aria-label="Advantage — roll 2d20, keep highest">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">🎲</span>
+                <span class="toggle-card-name">Advantage</span>
+              </div>
+              <span class="toggle-card-desc">Roll 2d20, keep the higher result. Doubles crit chance.</span>
+            </label>
+
+            <label class="toggle-card" for="disadvantage" id="card-disadvantage">
+              <input type="checkbox" id="disadvantage" aria-label="Disadvantage — roll 2d20, keep lowest">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">💀</span>
+                <span class="toggle-card-name">Disadvantage</span>
+              </div>
+              <span class="toggle-card-desc">Roll 2d20, keep the lower result. Drastically reduces hit &amp; crit chance.</span>
+            </label>
+
+            <label class="toggle-card" for="elvenAccuracy" id="card-elvenAccuracy">
+              <input type="checkbox" id="elvenAccuracy" aria-label="Elven Accuracy — upgrades Advantage into a triple-roll">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">🧝</span>
+                <span class="toggle-card-name">Elven Accuracy</span>
+              </div>
+              <span class="toggle-card-desc">When you have Advantage, roll 3d20 and keep the highest. Fires on any source of Advantage — including Vex. Half-elf/elf feat.</span>
+            </label>
+
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Weapon Style & Mastery -->
+    <details class="accordion mb-0" id="acc-weapon">
+      <summary class="accordion-trigger">
+        <div class="accordion-trigger-inner">
+          <span class="accordion-icon">🗡️</span>
+          <span class="accordion-label">Weapon Style &amp; Mastery</span>
+          <span class="accordion-badge" id="badge-weapon">Optional</span>
+          <span class="accordion-chevron" aria-hidden="true"></span>
+        </div>
+      </summary>
+      <div class="accordion-body">
+
+        <!-- Fighting Styles: GWF + TWF side by side -->
+        <div class="toggle-group mb-14">
+          <label style="display:block;margin-bottom:8px;">Fighting Style</label>
+          <div class="toggle-grid-styles" role="group" aria-label="Weapon fighting style">
+
+            <label class="toggle-card" for="gwf" id="card-gwf">
+              <input type="checkbox" id="gwf" aria-label="Great Weapon Fighting">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">⚔️</span>
+                <span class="toggle-card-name">Great Weapon Fighting</span>
+              </div>
+              <span class="toggle-card-desc">Reroll weapon damage dice showing 1 or 2. Applies to main-hand dice only.</span>
+            </label>
+
+            <label class="toggle-card" for="twfStyle" id="card-twfStyle">
+              <input type="checkbox" id="twfStyle" aria-label="Two-Weapon Fighting Style — adds damage bonus to off-hand attacks">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">🗡️</span>
+                <span class="toggle-card-name">Two-Weapon Fighting</span>
+              </div>
+              <span class="toggle-card-desc">Adds your ability modifier (Damage Bonus) to off-hand attack damage. Requires TWF active.</span>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Two-Weapon Fighting selector -->
+        <div class="toggle-group mb-14" id="twf-selector-group">
+          <label style="display:block;margin-bottom:8px;">Two-Weapon Fighting <span class="mastery-label">(2024 Rules)</span></label>
+          <div class="form-group">
+            <select id="twfMode" aria-label="Two-weapon fighting mode">
+              <option value="none" selected>None — Single weapon</option>
+              <option value="light">Base Light Weapons — 1 off-hand attack (Bonus Action)</option>
+              <option value="dualwielder">Dual Wielder Feat — 1 off-hand attack, any weapon</option>
+            </select>
+            <div class="input-hint">Dual Wielder + Nick mastery = 2 off-hand attacks total</div>
+          </div>
+
+          <!-- Off-hand dice input — shown when TWF active -->
+          <div class="offhand-row hidden" id="offhand-input-row">
+            <div class="form-group">
+              <label for="offHandDice">Off-Hand Weapon Dice</label>
+              <input type="text" id="offHandDice" value="1d6" placeholder="e.g. 1d6, 1d4"
+                     aria-label="Off-hand weapon dice notation" maxlength="60"
+                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <div class="input-hint">Dice for the off-hand weapon</div>
+              <div class="dice-summary" id="offhand-dice-tags"></div>
+            </div>
+            <div class="form-group graze-align-end">
+              <div class="info-box">
+                <div class="info-box-label">Off-Hand Damage</div>
+                <div class="info-box-text" id="offhand-info-text">Dice only — no modifier unless Two-Weapon Fighting style is active.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weapon Mastery: Graze, Vex, Nick -->
+        <div class="toggle-group mb-0">
+          <label style="display:block;margin-bottom:8px;">Weapon Mastery <span class="mastery-label">(5.5e / 2024 Rules)</span></label>
+          <div class="toggle-grid-3" role="group" aria-label="Weapon mastery selection">
+
+            <label class="toggle-card" for="graze" id="card-graze">
+              <input type="checkbox" id="graze" aria-label="Graze mastery — deal ability modifier damage on a miss">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">🛡️</span>
+                <span class="toggle-card-name">Graze</span>
+              </div>
+              <span class="toggle-card-desc">On a miss, deal damage equal to your ability modifier. Reliable floor vs high-AC.</span>
+              <span class="mastery-badge">Greatsword · Glaive · Halberd</span>
+            </label>
+
+            <label class="toggle-card" for="vex" id="card-vex">
+              <input type="checkbox" id="vex" aria-label="Vex mastery — hitting grants advantage on your next attack">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">👁️</span>
+                <span class="toggle-card-name">Vex</span>
+              </div>
+              <span class="toggle-card-desc">Hitting grants Advantage on your next attack. Any attack in the sequence can trigger it.</span>
+              <span class="mastery-badge">Rapier · Shortbow · Hand Crossbow</span>
+            </label>
+
+            <label class="toggle-card" for="nick" id="card-nick">
+              <input type="checkbox" id="nick" aria-label="Nick mastery — makes the Light weapon extra attack part of the Attack action">
+              <div class="toggle-card-pip" aria-hidden="true"></div>
+              <div class="toggle-card-header">
+                <span class="toggle-card-icon">⚡</span>
+                <span class="toggle-card-name">Nick</span>
+              </div>
+              <span class="toggle-card-desc">Light weapon extra attack becomes part of the Attack action. Stacks with Dual Wielder for 2 off-hand attacks.</span>
+              <span class="mastery-badge">Dagger · Handaxe · Scimitar</span>
+            </label>
+
+          </div>
+
+          <!-- Graze input row -->
+          <div class="graze-row hidden" id="graze-input-row">
+            <div class="form-group">
+              <label for="grazeDamage">Graze Damage (Ability Modifier)</label>
+              <input type="number" id="grazeDamage" value="4" min="0" max="10"
+                     aria-label="Ability modifier used for Graze on-miss damage">
+              <div class="input-hint">Typically your STR or DEX modifier</div>
+            </div>
+            <div class="form-group graze-align-end">
+              <div class="graze-info-box">
+                <div class="graze-info-label">Effect</div>
+                <div class="graze-info-text">Every missed attack still deals your modifier in damage. Flattens the damage curve at high AC.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </details>
+
+    <button class="calc-btn" id="calc-btn" type="button" aria-label="Calculate expected damage" style="margin-top:16px">
+      ⚔ Strike &mdash; Calculate Damage
+    </button>
+    <div id="error-message" class="error-msg" role="alert" aria-live="polite"></div>
+
+  </div><!-- /#input-panel -->
 
   <div id="results-container" aria-live="polite" aria-atomic="false"></div>
 
   </div><!-- /#attack-calculator-view -->
 
   <!-- ── Spell Calculator View ── -->
-
   <div id="spell-calculator-view" class="calc-view" role="tabpanel" aria-labelledby="tab-spell">
+    <div class="panel" id="spell-input-panel">
+      <div class="panel-corners" aria-hidden="true"></div>
 
-```
-<div class="panel" id="spell-input-panel">
-  <div class="panel-corners" aria-hidden="true"></div>
-
-  <!-- Spell Parameters accordion -->
-  <details class="accordion" id="acc-spell-params" open>
-    <summary class="accordion-trigger">
-      <div class="accordion-trigger-inner">
-        <span class="accordion-icon">✨</span>
-        <span class="accordion-label">Spell Parameters</span>
-        <span class="accordion-badge" id="badge-spell-params"></span>
-        <span class="accordion-chevron" aria-hidden="true"></span>
-      </div>
-    </summary>
-    <div class="accordion-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="spellSaveDC">Spell Save DC</label>
-          <input type="number" id="spellSaveDC" value="15" min="5" max="30"
-                 aria-label="Spell save DC">
-          <div class="input-hint">Typically 8 + Prof + Casting Mod</div>
-        </div>
-        <div class="form-group">
-          <!-- intentionally empty — keeps grid symmetry -->
-        </div>
-        <div class="form-group full">
-          <label for="spellDice">Damage Dice</label>
-          <input type="text" id="spellDice" value="8d6" placeholder="e.g. 8d6, 4d10, 6d8"
-                 aria-label="Spell damage dice notation" maxlength="60"
-                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-          <div class="input-hint">Separate multiple dice groups with commas &mdash; e.g. 8d6, 2d4</div>
-          <div class="dice-summary" id="spell-dice-tags"></div>
-        </div>
-      </div>
-    </div>
-  </details>
-
-  <!-- Spell Mechanics accordion -->
-  <details class="accordion" id="acc-spell-mechanics">
-    <summary class="accordion-trigger">
-      <div class="accordion-trigger-inner">
-        <span class="accordion-icon">⚙️</span>
-        <span class="accordion-label">Spell Mechanics</span>
-        <span class="accordion-badge" id="badge-spell-mechanics">Optional</span>
-        <span class="accordion-chevron" aria-hidden="true"></span>
-      </div>
-    </summary>
-    <div class="accordion-body">
-      <div class="toggle-group mb-0">
-        <div class="toggle-grid-solo" role="group" aria-label="Spell mechanics">
-
-          <label class="toggle-card" for="saveForHalf" id="card-saveForHalf">
-            <input type="checkbox" id="saveForHalf" checked
-                   aria-label="Save for half — successful save deals 50% damage">
-            <div class="toggle-card-pip" aria-hidden="true"></div>
-            <div class="toggle-card-header">
-              <span class="toggle-card-icon">🛡️</span>
-              <span class="toggle-card-name">Save for Half</span>
+      <details class="accordion" id="acc-spell-params" open>
+        <summary class="accordion-trigger">
+          <div class="accordion-trigger-inner">
+            <span class="accordion-icon">✨</span>
+            <span class="accordion-label">Spell Parameters</span>
+            <span class="accordion-badge" id="badge-spell-params"></span>
+            <span class="accordion-chevron" aria-hidden="true"></span>
+          </div>
+        </summary>
+        <div class="accordion-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="spellSaveDC">Spell Save DC</label>
+              <input type="number" id="spellSaveDC" value="15" min="5" max="30" aria-label="Spell save DC">
+              <div class="input-hint">Typically 8 + Prof + Casting Mod</div>
             </div>
-            <span class="toggle-card-desc">A successful save deals half damage. If unchecked, a successful save negates all damage (e.g. Hold Person, Banishment).</span>
-          </label>
-
-        </div>
-      </div>
-    </div>
-  </details>
-
-  <!-- Target Roll Mode accordion -->
-  <details class="accordion mb-0" id="acc-spell-rollmode">
-    <summary class="accordion-trigger">
-      <div class="accordion-trigger-inner">
-        <span class="accordion-icon">🎲</span>
-        <span class="accordion-label">Target Roll Mode</span>
-        <span class="accordion-badge" id="badge-spell-rollmode">Optional</span>
-        <span class="accordion-chevron" aria-hidden="true"></span>
-      </div>
-    </summary>
-    <div class="accordion-body">
-      <div class="toggle-group mb-0">
-        <div class="toggle-grid-2" role="group" aria-label="Target saving throw roll mode">
-
-          <label class="toggle-card" for="spellAdvantage" id="card-spellAdvantage">
-            <input type="checkbox" id="spellAdvantage"
-                   aria-label="Target has advantage on saving throw">
-            <div class="toggle-card-pip" aria-hidden="true"></div>
-            <div class="toggle-card-header">
-              <span class="toggle-card-icon">🎲</span>
-              <span class="toggle-card-name">Adv. on Save</span>
+            <div class="form-group"></div>
+            <div class="form-group full">
+              <label for="spellDice">Damage Dice</label>
+              <input type="text" id="spellDice" value="8d6" placeholder="e.g. 8d6, 4d10, 6d8"
+                     aria-label="Spell damage dice notation" maxlength="60"
+                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <div class="input-hint">Separate multiple dice groups with commas &mdash; e.g. 8d6, 2d4</div>
+              <div class="dice-summary" id="spell-dice-tags"></div>
             </div>
-            <span class="toggle-card-desc">Target rolls 2d20 and keeps the highest. Reduces your expected damage — e.g. target has Magic Resistance.</span>
-          </label>
-
-          <label class="toggle-card" for="spellDisadvantage" id="card-spellDisadvantage">
-            <input type="checkbox" id="spellDisadvantage"
-                   aria-label="Target has disadvantage on saving throw">
-            <div class="toggle-card-pip" aria-hidden="true"></div>
-            <div class="toggle-card-header">
-              <span class="toggle-card-icon">💀</span>
-              <span class="toggle-card-name">Disadv. on Save</span>
-            </div>
-            <span class="toggle-card-desc">Target rolls 2d20 and keeps the lowest. Increases your expected damage — e.g. target is restrained or frightened.</span>
-          </label>
-
+          </div>
         </div>
-      </div>
+      </details>
+
+      <details class="accordion" id="acc-spell-mechanics">
+        <summary class="accordion-trigger">
+          <div class="accordion-trigger-inner">
+            <span class="accordion-icon">⚙️</span>
+            <span class="accordion-label">Spell Mechanics</span>
+            <span class="accordion-badge" id="badge-spell-mechanics">Optional</span>
+            <span class="accordion-chevron" aria-hidden="true"></span>
+          </div>
+        </summary>
+        <div class="accordion-body">
+          <div class="toggle-group mb-0">
+            <div class="toggle-grid-solo" role="group" aria-label="Spell mechanics">
+              <label class="toggle-card" for="saveForHalf" id="card-saveForHalf">
+                <input type="checkbox" id="saveForHalf" checked aria-label="Save for half">
+                <div class="toggle-card-pip" aria-hidden="true"></div>
+                <div class="toggle-card-header">
+                  <span class="toggle-card-icon">🛡️</span>
+                  <span class="toggle-card-name">Save for Half</span>
+                </div>
+                <span class="toggle-card-desc">A successful save deals half damage. If unchecked, a successful save negates all damage.</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="accordion mb-0" id="acc-spell-rollmode">
+        <summary class="accordion-trigger">
+          <div class="accordion-trigger-inner">
+            <span class="accordion-icon">🎲</span>
+            <span class="accordion-label">Target Roll Mode</span>
+            <span class="accordion-badge" id="badge-spell-rollmode">Optional</span>
+            <span class="accordion-chevron" aria-hidden="true"></span>
+          </div>
+        </summary>
+        <div class="accordion-body">
+          <div class="toggle-group mb-0">
+            <div class="toggle-grid-2" role="group" aria-label="Target saving throw roll mode">
+              <label class="toggle-card" for="spellAdvantage" id="card-spellAdvantage">
+                <input type="checkbox" id="spellAdvantage" aria-label="Target has advantage on saving throw">
+                <div class="toggle-card-pip" aria-hidden="true"></div>
+                <div class="toggle-card-header">
+                  <span class="toggle-card-icon">🎲</span>
+                  <span class="toggle-card-name">Adv. on Save</span>
+                </div>
+                <span class="toggle-card-desc">Target rolls 2d20 and keeps the highest — e.g. Magic Resistance.</span>
+              </label>
+              <label class="toggle-card" for="spellDisadvantage" id="card-spellDisadvantage">
+                <input type="checkbox" id="spellDisadvantage" aria-label="Target has disadvantage on saving throw">
+                <div class="toggle-card-pip" aria-hidden="true"></div>
+                <div class="toggle-card-header">
+                  <span class="toggle-card-icon">💀</span>
+                  <span class="toggle-card-name">Disadv. on Save</span>
+                </div>
+                <span class="toggle-card-desc">Target rolls 2d20 and keeps the lowest — e.g. restrained or frightened.</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <button class="calc-btn" id="spell-calc-btn" type="button"
+              aria-label="Calculate expected spell damage" style="margin-top:16px">
+        ✨ Cast &mdash; Calculate Spell Damage
+      </button>
+      <div id="spell-error-message" class="error-msg" role="alert" aria-live="polite"></div>
     </div>
-  </details>
-
-  <button class="calc-btn" id="spell-calc-btn" type="button"
-          aria-label="Calculate expected spell damage" style="margin-top:16px">
-    ✨ Cast &mdash; Calculate Spell Damage
-  </button>
-  <div id="spell-error-message" class="error-msg" role="alert" aria-live="polite"></div>
-
-</div><!-- /#spell-input-panel -->
-
-<div id="spell-results-container" aria-live="polite" aria-atomic="false"></div>
-```
-
+    <div id="spell-results-container" aria-live="polite" aria-atomic="false"></div>
   </div><!-- /#spell-calculator-view -->
 
   <footer class="footer">⚔ &nbsp; Forged for battle &bull; D&amp;D 5e / 5.5e Rules &nbsp; ⚔</footer>
-</div>
+</div><!-- /.page-wrapper -->
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" 
-        integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" 
-        crossorigin="anonymous" 
-        referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+        integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
 (function () {
   'use strict';
 
-  /* ── Utility helpers ── */
+  /* ══════════════════════════════════════════
+     UTILITY HELPERS
+  ══════════════════════════════════════════ */
   function el(tag, attrs, text) {
     const node = document.createElement(tag);
     if (attrs) {
       for (const [k, v] of Object.entries(attrs)) {
-        if (k === 'style' && typeof v === 'object') {
-          Object.assign(node.style, v);
-        } else {
-          node.setAttribute(k, v);
-        }
+        if (k === 'style' && typeof v === 'object') Object.assign(node.style, v);
+        else node.setAttribute(k, v);
       }
     }
     if (text !== undefined && text !== null) node.textContent = text;
@@ -948,11 +927,8 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
 
   function esc(str) {
     return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;');
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
   }
 
   const FORMULA_CHARS = /^[=+\-@|%]/;
@@ -961,7 +937,9 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     return FORMULA_CHARS.test(s) ? "'" + s : s;
   }
 
-  /* ── Input bounds ── */
+  /* ══════════════════════════════════════════
+     INPUT BOUNDS
+  ══════════════════════════════════════════ */
   const INPUT_BOUNDS = {
     toHit:       { min: -5,  max: 20, label: 'To Hit bonus' },
     dmgBonus:    { min: -10, max: 30, label: 'Damage bonus' },
@@ -978,11 +956,14 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     return { value: val, error: null };
   }
 
-  let chartInstance        = null;
+  let attackChart          = null;   // Chart instance owned by the attack calculator
+  let spellChart           = null;   // Chart instance owned by the spell calculator
   let currentCalcData      = null;
   let currentSpellCalcData = null;
 
-  /* ── Toast ── */
+  /* ══════════════════════════════════════════
+     TOAST
+  ══════════════════════════════════════════ */
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -990,7 +971,9 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     setTimeout(() => t.classList.remove('show'), 2400);
   }
 
-  /* ── Dice parsing ── */
+  /* ══════════════════════════════════════════
+     DICE PARSING
+  ══════════════════════════════════════════ */
   function parseDiceInput(str, optional, maxGroups) {
     maxGroups = maxGroups || 10;
     const raw = str.slice(0, 60).trim().toLowerCase();
@@ -1000,8 +983,7 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     }
     const parts = raw.split(',');
     if (parts.length > maxGroups) return { groups: null, error: `⚠ Maximum ${maxGroups} dice groups allowed` };
-
-    const groups     = [];
+    const groups = [];
     const groupRegex = /^(\d{1,2})d(\d{1,3})$/;
     for (const part of parts) {
       const trimmed = part.trim();
@@ -1022,7 +1004,6 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     return groups.reduce((sum, g) => sum + g.count * ((g.faces + 1) / 2.0), 0);
   }
 
-  /* ── GWF average: reroll 1s and 2s on a die ── */
   function gwfAvgDie(faces) {
     const pReroll   = 2 / faces;
     const rerollAvg = (faces + 1) / 2;
@@ -1034,234 +1015,25 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     return groups.reduce((sum, g) => sum + g.count * gwfAvgDie(g.faces), 0);
   }
 
-  function updateDiceTags() {
-    const tagsDiv = document.getElementById('dice-tags');
-    while (tagsDiv.firstChild) tagsDiv.removeChild(tagsDiv.firstChild);
-    const result = parseDiceInput(document.getElementById('weaponDice').value, false);
-    if (!result.groups) return;
-    result.groups.forEach(g => {
-      tagsDiv.appendChild(el('span', { class: 'dice-tag' }, `${g.count}d${g.faces}`));
-    });
-  }
-
-  function updateSpellDiceTags() {
-    const tagsDiv = document.getElementById('spell-dice-tags');
+  /* ══════════════════════════════════════════
+     DICE TAG UPDATERS
+  ══════════════════════════════════════════ */
+  /* Single generic function replacing three identical copies */
+  function renderDiceTags(inputId, containerId) {
+    const tagsDiv = document.getElementById(containerId);
     if (!tagsDiv) return;
     while (tagsDiv.firstChild) tagsDiv.removeChild(tagsDiv.firstChild);
-    const result = parseDiceInput(document.getElementById('spellDice').value, false);
+    const result = parseDiceInput(document.getElementById(inputId).value, false);
     if (!result.groups) return;
-    result.groups.forEach(g => {
-      tagsDiv.appendChild(el('span', { class: 'dice-tag' }, `${g.count}d${g.faces}`));
-    });
+    result.groups.forEach(g => tagsDiv.appendChild(el('span', { class: 'dice-tag' }, `${g.count}d${g.faces}`)));
   }
 
-  /* ── Spell badge updaters ── */
-  function updateSpellParamsBadge() {
-    const dc   = document.getElementById('spellSaveDC').value.trim();
-    const dice = document.getElementById('spellDice').value.trim();
-    setBadge('badge-spell-params', dice ? `${dice} · DC ${dc}` : null);
-  }
-
-  function updateSpellMechanicsBadge() {
-    const half = document.getElementById('saveForHalf').checked;
-    setBadge('badge-spell-mechanics', half ? 'Save for Half' : 'No Damage on Save');
-  }
-
-  function updateSpellRollModeBadge() {
-    const adv = document.getElementById('spellAdvantage').checked;
-    const dis = document.getElementById('spellDisadvantage').checked;
-    const label = adv ? 'Adv. on Save' : dis ? 'Disadv. on Save' : null;
-    setBadge('badge-spell-rollmode', label);
-  }
-
-  /* ── Spell Core Calculation ── */
-  function calculateSpellExpectedDamage() {
-    const errorDiv = document.getElementById('spell-error-message');
-    errorDiv.textContent = '';
-
-    // ── Read inputs ──
-    const dcResult = parseAndClampInt(document.getElementById('spellSaveDC').value, 'spellSaveDC');
-    if (dcResult.error) { errorDiv.textContent = dcResult.error; return; }
-    const dc = dcResult.value;
-
-    const saveForHalf = document.getElementById('saveForHalf').checked;
-
-    const spellAdv = document.getElementById('spellAdvantage').checked;
-    const spellDis = document.getElementById('spellDisadvantage').checked;
-    let rollMode = 'straight';
-    if (spellAdv) rollMode = 'advantage';
-    else if (spellDis) rollMode = 'disadvantage';
-
-    // ── Parse dice ──
-    const parsed = parseDiceInput(document.getElementById('spellDice').value, false);
-    if (parsed.error) { errorDiv.textContent = parsed.error; return; }
-
-    const avgRawDamage    = totalAvgDice(parsed.groups);
-    const mitigatedDamage = saveForHalf ? avgRawDamage / 2.0 : 0.0;
-
-    // ── Iterate save modifiers 0–10 ──
-    const rows = [];
-    for (let saveMod = 0; saveMod <= 10; saveMod++) {
-      const { failChance, successChance } = computeSaveProbs(saveMod, dc, rollMode);
-
-      // Expected damage = (P(fail) × full damage) + (P(success) × mitigated damage)
-      const totalExpected = (failChance * avgRawDamage) + (successChance * mitigatedDamage);
-
-      rows.push({ saveMod, totalExpected });
-    }
-
-    const maxExpected = rows.reduce((m, r) => Math.max(m, r.totalExpected), 0);
-
-    // ── Build label strings for the subtitle ──
-    const diceLabel   = parsed.groups.map(g => `${g.count}d${g.faces}`).join(' + ');
-    const halfLabel   = saveForHalf ? ' · Save for Half' : ' · No Dmg on Save';
-    const modeLabel   = spellAdv ? ' · Adv. on Save' : spellDis ? ' · Disadv. on Save' : '';
-
-    currentSpellCalcData = { rows, maxExpected, diceLabel, dc, halfLabel, modeLabel };
-    renderSpellResults(rows, maxExpected, diceLabel, dc, halfLabel, modeLabel);
-  }
-
-  /* ── Spell render results ── */
-  function renderSpellResults(rows, maxExpected, diceLabel, dc, halfLabel, modeLabel) {
-    const resultsDiv = document.getElementById('spell-results-container');
-
-    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-    while (resultsDiv.firstChild) resultsDiv.removeChild(resultsDiv.firstChild);
-
-    const panel = el('div', { class: 'panel results-panel' });
-    const panelCorners = el('div', { class: 'panel-corners', 'aria-hidden': 'true' });
-    panel.appendChild(panelCorners);
-
-    panel.appendChild(el('div', { class: 'results-title'    }, `✨ Expected Spell Damage`));
-    panel.appendChild(el('div', { class: 'results-subtitle' },
-      `${diceLabel} · DC ${dc}${halfLabel}${modeLabel}`));
-
-    const tabBar   = el('div',    { class: 'view-tabs', role: 'tablist' });
-    const tabTable = el('button', { class: 'view-tab active', 'data-tab': 'spell-table', role: 'tab', type: 'button', 'aria-selected': 'true',  'aria-controls': 'spell-pane-table' }, '📋 Table');
-    const tabChart = el('button', { class: 'view-tab',        'data-tab': 'spell-chart', role: 'tab', type: 'button', 'aria-selected': 'false', 'aria-controls': 'spell-pane-chart' }, '📈 Graph');
-    tabBar.appendChild(tabTable);
-    tabBar.appendChild(tabChart);
-    panel.appendChild(tabBar);
-
-    /* Table pane */
-    const paneTable = el('div', { class: 'view-pane active', id: 'spell-pane-table', role: 'tabpanel' });
-    const scroll    = el('div', { class: 'table-scroll' });
-    const table     = el('table', { role: 'table', 'aria-label': 'Expected spell damage by save modifier' });
-    const thead     = el('thead');
-    const headerRow = el('tr');
-    ['Save Modifier', 'Expected Damage', 'Power'].forEach(h => {
-      headerRow.appendChild(el('th', { scope: 'col' }, h));
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = el('tbody');
-    for (const row of rows) {
-      const barWidth  = maxExpected > 0 ? (row.totalExpected / maxExpected) * 100 : 0;
-      const tierClass = barWidth > 65 ? 'tier-high' : (barWidth > 35 ? 'tier-mid' : 'tier-low');
-      const barColor  = barWidth > 65
-        ? 'linear-gradient(90deg,var(--gold-dim),var(--gold-light))'
-        : (barWidth > 35
-            ? 'linear-gradient(90deg,var(--blood),var(--gold-dim))'
-            : 'linear-gradient(90deg,var(--steel),var(--blade))');
-
-      const tr = el('tr', { class: tierClass });
-      tr.appendChild(el('td', { class: 'ac-cell' }, `+${row.saveMod}`));
-
-      const dmgCell = el('td', { class: 'dmg-cell', style: { position: 'relative', paddingBottom: '12px' } },
-        row.totalExpected.toFixed(2));
-      const bar = el('div', { class: 'dmg-bar' });
-      bar.style.width      = barWidth.toFixed(1) + '%';
-      bar.style.background = barColor;
-      dmgCell.appendChild(bar);
-      tr.appendChild(dmgCell);
-
-      const powerCell  = el('td');
-      const powerOuter = el('div', { style: { background: 'rgba(255,255,255,0.06)', borderRadius: '2px', height: '8px', overflow: 'hidden' } });
-      const powerInner = el('div');
-      Object.assign(powerInner.style, {
-        height: '100%', width: barWidth.toFixed(1) + '%',
-        background: barColor, borderRadius: '2px', transition: 'width 0.4s ease'
-      });
-      powerOuter.appendChild(powerInner);
-      powerCell.appendChild(powerOuter);
-      tr.appendChild(powerCell);
-
-      tbody.appendChild(tr);
-    }
-    table.appendChild(tbody);
-    scroll.appendChild(table);
-    paneTable.appendChild(scroll);
-    panel.appendChild(paneTable);
-
-    /* Chart pane */
-    const paneChart = el('div', { class: 'view-pane', id: 'spell-pane-chart', role: 'tabpanel' });
-    const chartWrap = el('div', { class: 'chart-wrap' });
-    chartWrap.appendChild(el('canvas', { id: 'spell-dmg-chart', 'aria-label': 'Expected spell damage line chart' }));
-    paneChart.appendChild(chartWrap);
-    panel.appendChild(paneChart);
-
-    const exportBar = el('div', { class: 'export-bar' });
-
-    const btnTSV = el('button', { class: 'export-btn', id: 'spell-export-tsv', type: 'button' });
-    btnTSV.appendChild(el('span', { class: 'btn-icon' }, '📄'));
-    btnTSV.appendChild(document.createTextNode(' Copy as TSV'));
-
-    const btnCSV = el('button', { class: 'export-btn', id: 'spell-export-csv', type: 'button' });
-    btnCSV.appendChild(el('span', { class: 'btn-icon' }, '📊'));
-    btnCSV.appendChild(document.createTextNode(' Copy as CSV'));
-
-    const btnImg = el('button', { class: 'export-btn', id: 'spell-export-img', type: 'button', 'aria-label': 'Copy chart as image', title: 'Copy chart as PNG image' });
-    btnImg.appendChild(el('span', { class: 'btn-icon' }, '🖼️'));
-    btnImg.appendChild(document.createTextNode(' Copy Chart Image'));
-
-    exportBar.appendChild(btnTSV);
-    exportBar.appendChild(btnCSV);
-    exportBar.appendChild(btnImg);
-    panel.appendChild(exportBar);
-
-    resultsDiv.appendChild(panel);
-
-    bindTabListeners(tabTable, tabChart, paneTable, paneChart);
-    bindSpellExportListeners();
-    renderSpellChart(rows, modeLabel);
-  }
-
-  /* ── Spell toggle mutex (adv / disadv on save are mutually exclusive) ── */
-  function setupSpellToggles() {
-    const advEl  = document.getElementById('spellAdvantage');
-    const disEl  = document.getElementById('spellDisadvantage');
-    const halfEl = document.getElementById('saveForHalf');
-
-    advEl.addEventListener('change', () => {
-      if (advEl.checked) disEl.checked = false;
-      syncCard(advEl);
-      syncCard(disEl);
-      updateSpellRollModeBadge();
-    });
-    disEl.addEventListener('change', () => {
-      if (disEl.checked) advEl.checked = false;
-      syncCard(advEl);
-      syncCard(disEl);
-      updateSpellRollModeBadge();
-    });
-    halfEl.addEventListener('change', () => {
-      syncCard(halfEl);
-      updateSpellMechanicsBadge();
-    });
-  }
-
-  /* ─────────────────────────────────────────────────────────────────
-   * computeAttackProbs(baseMissChance, critThreshold, rollMode, hasElvenAccuracy)
-   *
-   * hasElvenAccuracy upgrades any 'advantage' roll to 'elven' (triple-
-   * roll, keep highest). Per RAW, Elven Accuracy fires on any source
-   * of Advantage — including Vex-granted Advantage.
-   * ───────────────────────────────────────────────────────────────── */
+  /* ══════════════════════════════════════════
+     ATTACK PROBABILITY CORE
+  ══════════════════════════════════════════ */
   function computeAttackProbs(baseMissChance, critThreshold, rollMode, hasElvenAccuracy) {
-    let missChance, critChance;
-
     const effectiveMode = (hasElvenAccuracy && rollMode === 'advantage') ? 'elven' : rollMode;
+    let missChance, critChance;
 
     if (effectiveMode === 'elven') {
       const pBelowCrit = (critThreshold - 1) / 20.0;
@@ -1277,10 +1049,8 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
       missChance = 1.0 - (baseHitChance * baseHitChance);
       critChance = baseCritChance * baseCritChance;
     } else {
-      // straight roll
-      const baseCritChance = (21 - critThreshold) / 20.0;
       missChance = baseMissChance;
-      critChance = baseCritChance;
+      critChance = (21 - critThreshold) / 20.0;
     }
 
     missChance = Math.min(Math.max(missChance, 0.0), 1.0);
@@ -1289,98 +1059,33 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     return { missChance, critChance, normalHitChance };
   }
 
-  /* ─────────────────────────────────────────────────────────────────
-   * computeSaveProbs(saveModifier, dc, rollMode)
-   *
-   * Saving throw logic is the inverse of attack roll logic:
-   * the TARGET rolls d20 + saveModifier against the caster's DC.
-   *
-   * successChance — P(target saves); failChance — P(target fails/takes
-   * full damage).
-   *
-   * RAW (5e & 5.5e 2024): natural 1s and 20s do NOT auto-fail/succeed
-   * on saving throws (Death Saves are the sole exception). A target with
-   * a modifier high enough that even a 1 beats the DC succeeds 100% of
-   * the time; a target who cannot reach the DC even on a 20 fails 100%.
-   * We therefore clamp targetRoll to [1, 21] so that the formula
-   * (21 - targetRoll) / 20 naturally produces 1.0 and 0.0 at the
-   * extremes rather than artificially flooring/capping at 19/20 or 1/20.
-   *
-   * Advantage/Disadvantage applies to the TARGET'S roll:
-   *   Adv  → target rolls 2d20 keep highest → more saves → less damage
-   *   Disadv → target rolls 2d20 keep lowest → fewer saves → more damage
-   * ───────────────────────────────────────────────────────────────── */
-  function computeSaveProbs(saveModifier, dc, rollMode) {
-    // Minimum face the target must roll to succeed (unclamped)
-    let targetRoll = dc - saveModifier;
-
-    // Clamp to [1, 21]: allows 100% success (targetRoll ≤ 1) and
-    // 0% success (targetRoll > 20) per RAW — no auto-fail on a natural 1.
-    if (targetRoll < 1)  targetRoll = 1;
-    if (targetRoll > 21) targetRoll = 21;
-
-    // Base probabilities (straight roll)
-    const baseSuccessChance = (21 - targetRoll) / 20.0;
-    const baseFailChance    = 1.0 - baseSuccessChance;
-
-    let successChance, failChance;
-
-    if (rollMode === 'advantage') {
-      // Target keeps highest of 2d20 → more likely to succeed
-      // P(success_adv) = 1 - P(fail)^2
-      failChance    = baseFailChance * baseFailChance;
-      successChance = 1.0 - failChance;
-    } else if (rollMode === 'disadvantage') {
-      // Target keeps lowest of 2d20 → less likely to succeed
-      // P(success_dis) = P(success)^2
-      successChance = baseSuccessChance * baseSuccessChance;
-      failChance    = 1.0 - successChance;
-    } else {
-      // Straight roll
-      successChance = baseSuccessChance;
-      failChance    = baseFailChance;
-    }
-
-    // Clamp to [0, 1] to absorb any floating-point drift
-    successChance = Math.min(Math.max(successChance, 0.0), 1.0);
-    failChance    = Math.min(Math.max(failChance,    0.0), 1.0);
-
-    return { successChance, failChance };
-  }
-
-  /* ─────────────────────────────────────────────────────────────────
-   * computeVexAttackSequence
-   *
-   * Vex grants Advantage on the next attack against the same target.
-   * Elven Accuracy fires on any Advantage, including Vex-granted —
-   * so vexUpgrade always produces 'advantage' and lets computeAttackProbs
-   * handle the EA upgrade internally via hasElvenAccuracy.
-   *
-   * Disadvantage + Vex-granted Advantage cancel to a straight roll
-   * (RAW: Adv and Disadv together = straight regardless of sources).
-   * ───────────────────────────────────────────────────────────────── */
-  function computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, startRollMode, hasElvenAccuracy) {
+  /* ══════════════════════════════════════════
+     VEX SEQUENCE ENGINE
+     Accepts an attackMap array whose length
+     determines the number of probability slots.
+     Vex: any hit grants advantage on the NEXT
+     slot, regardless of primary/offhand type.
+  ══════════════════════════════════════════ */
+  function computeVexAttackSequence(baseMissChance, critThreshold, numSlots, startRollMode, hasElvenAccuracy) {
 
     function vexUpgrade(mode) {
       if (mode === 'elven')        return 'elven';
       if (mode === 'advantage')    return 'advantage'; // EA handled inside computeAttackProbs
       if (mode === 'disadvantage') return 'straight';  // Adv + Disadv cancel per RAW
-      return 'advantage';                              // straight → Vex grants Advantage; EA fires if active
+      return 'advantage';
     }
 
     const result = [];
     let pAdvState = 0.0;
 
-    for (let i = 0; i < numAttacks; i++) {
+    for (let i = 0; i < numSlots; i++) {
       if (i === 0) {
         const probs = computeAttackProbs(baseMissChance, critThreshold, startRollMode, hasElvenAccuracy);
         result.push(probs);
         pAdvState = probs.critChance + probs.normalHitChance;
       } else {
         const baseProbs = computeAttackProbs(baseMissChance, critThreshold, startRollMode, hasElvenAccuracy);
-        // Pass hasElvenAccuracy so EA fires on Vex-granted Advantage too
         const advProbs  = computeAttackProbs(baseMissChance, critThreshold, vexUpgrade(startRollMode), hasElvenAccuracy);
-
         const blended = {
           missChance:      pAdvState * advProbs.missChance      + (1 - pAdvState) * baseProbs.missChance,
           critChance:      pAdvState * advProbs.critChance      + (1 - pAdvState) * baseProbs.critChance,
@@ -1393,118 +1098,268 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     return result;
   }
 
-  /* ── Core calculation ── */
+  /* ══════════════════════════════════════════
+     ATTACK MAP BUILDER
+     Returns an ordered array of 'primary' |
+     'nick' | 'offhand' strings representing
+     the optimal attack sequence for Vex chaining.
+
+     Order rationale (maximise Vex carry-forward):
+       Interleave primary & off-hand so that a
+       hit on either feeds advantage into the next.
+       Nick slot always follows the first main-hand
+       attack (it is part of the Attack action).
+
+     Examples:
+       1 primary, 1 offhand (base TWF):
+         ['primary','offhand']
+       2 primary, 1 offhand:
+         ['primary','offhand','primary']
+       2 primary, Nick, 1 offhand (DW+Nick):
+         ['primary','nick','offhand','primary','offhand']
+         Wait — DW+Nick = numOffHand 2, interleaved:
+         ['primary','nick','primary','offhand','offhand']
+         Actually per spec: interleave to maximise Vex.
+         Best sequence: ['primary','offhand','primary','offhand']
+         where nick fills the first offhand slot and
+         the second offhand is the DW bonus action slot.
+
+     Simplified canonical sequence (spec §):
+       Build: numPrimary primary slots + numOffHand offhand slots
+       Interleave them alternating primary/offhand,
+       nick replaces the first offhand slot label.
+  ══════════════════════════════════════════ */
+  function buildAttackMap(numPrimary, numOffHand, nickActive) {
+    // Build separate queues
+    const primaryQueue  = Array(numPrimary).fill('primary');
+    const offhandQueue  = [];
+    for (let i = 0; i < numOffHand; i++) {
+      // First off-hand slot is labelled 'nick' if nick active, rest are 'offhand'
+      offhandQueue.push(nickActive && i === 0 ? 'nick' : 'offhand');
+    }
+
+    const map = [];
+    let pi = 0, oi = 0;
+    // Interleave: primary, offhand, primary, offhand …
+    while (pi < primaryQueue.length || oi < offhandQueue.length) {
+      if (pi < primaryQueue.length) map.push(primaryQueue[pi++]);
+      if (oi < offhandQueue.length) map.push(offhandQueue[oi++]);
+    }
+    return map;
+  }
+
+  /* ══════════════════════════════════════════
+     SAVE PROBABILITY (Spell calculator)
+  ══════════════════════════════════════════ */
+  function computeSaveProbs(saveModifier, dc, rollMode) {
+    let targetRoll = dc - saveModifier;
+    if (targetRoll < 1)  targetRoll = 1;
+    if (targetRoll > 21) targetRoll = 21;
+
+    const baseSuccessChance = (21 - targetRoll) / 20.0;
+    const baseFailChance    = 1.0 - baseSuccessChance;
+    let successChance, failChance;
+
+    if (rollMode === 'advantage') {
+      failChance    = baseFailChance * baseFailChance;
+      successChance = 1.0 - failChance;
+    } else if (rollMode === 'disadvantage') {
+      successChance = baseSuccessChance * baseSuccessChance;
+      failChance    = 1.0 - successChance;
+    } else {
+      successChance = baseSuccessChance;
+      failChance    = baseFailChance;
+    }
+
+    successChance = Math.min(Math.max(successChance, 0.0), 1.0);
+    failChance    = Math.min(Math.max(failChance,    0.0), 1.0);
+    return { successChance, failChance };
+  }
+
+  /* ══════════════════════════════════════════
+     FORM STATE READERS (Fix 2)
+     Collect all DOM values into plain objects.
+     Calculation functions receive data, not DOM.
+  ══════════════════════════════════════════ */
+  function getAttackState() {
+    return {
+      // Checkboxes
+      advantage:     document.getElementById('advantage').checked,
+      disadvantage:  document.getElementById('disadvantage').checked,
+      elvenAccuracy: document.getElementById('elvenAccuracy').checked,
+      gwf:           document.getElementById('gwf').checked,
+      twfStyle:      document.getElementById('twfStyle').checked,
+      grazeOn:       document.getElementById('graze').checked,
+      vexOn:         document.getElementById('vex').checked,
+      nickOn:        document.getElementById('nick').checked,
+      // Selects / text inputs (raw strings — parsing happens in calc)
+      twfMode:        document.getElementById('twfMode').value,
+      toHitRaw:       document.getElementById('toHit').value,
+      dmgBonusRaw:    document.getElementById('dmgBonus').value,
+      grazeDamageRaw: document.getElementById('grazeDamage').value,
+      numAttacksRaw:  document.getElementById('numAttacks').value,
+      critThreshRaw:  document.getElementById('critThreshold').value,
+      weaponDiceRaw:  document.getElementById('weaponDice').value,
+      bonusDiceRaw:   document.getElementById('bonusDmgDice').value,
+      extraCritRaw:   document.getElementById('extraCritDice').value,
+      offHandDiceRaw: document.getElementById('offHandDice').value,
+    };
+  }
+
+  function getSpellState() {
+    return {
+      spellSaveDCRaw: document.getElementById('spellSaveDC').value,
+      saveForHalf:    document.getElementById('saveForHalf').checked,
+      spellAdv:       document.getElementById('spellAdvantage').checked,
+      spellDis:       document.getElementById('spellDisadvantage').checked,
+      spellDiceRaw:   document.getElementById('spellDice').value,
+    };
+  }
+
+  /* ══════════════════════════════════════════
+     CORE ATTACK CALCULATION
+  ══════════════════════════════════════════ */
   function calculateExpectedDamage() {
     const errorDiv = document.getElementById('error-message');
     errorDiv.textContent = '';
 
-    const advEl          = document.getElementById('advantage');
-    const disEl          = document.getElementById('disadvantage');
-    const elvenAccEl     = document.getElementById('elvenAccuracy');
-    const gwfEl          = document.getElementById('gwf');
-    const grazeEl        = document.getElementById('graze');
-    const vexEl          = document.getElementById('vex');
+    // Collect all form values into a plain state object (Fix 2)
+    const s = getAttackState();
 
-    const advantage      = advEl.checked;
-    const disadvantage   = disEl.checked;
-    const elvenAccuracy  = elvenAccEl.checked;
-    const gwf            = gwfEl.checked;
-    const grazeOn        = grazeEl.checked;
-    const vexOn          = vexEl.checked;
+    // Destructure booleans and selects
+    const { advantage, disadvantage, elvenAccuracy, gwf, twfStyle,
+            grazeOn, vexOn, nickOn, twfMode } = s;
 
-    const toHitResult    = parseAndClampInt(document.getElementById('toHit').value,    'toHit');
-    const dmgBonusResult = parseAndClampInt(document.getElementById('dmgBonus').value, 'dmgBonus');
-
+    // Parse and validate numerics
+    const toHitResult    = parseAndClampInt(s.toHitRaw,    'toHit');
+    const dmgBonusResult = parseAndClampInt(s.dmgBonusRaw, 'dmgBonus');
     if (toHitResult.error)    { errorDiv.textContent = toHitResult.error;    return; }
     if (dmgBonusResult.error) { errorDiv.textContent = dmgBonusResult.error; return; }
-
     const toHit    = toHitResult.value;
     const dmgBonus = dmgBonusResult.value;
 
-    // Graze damage input
     let grazeDamage = 0;
     if (grazeOn) {
-      const grazeResult = parseAndClampInt(document.getElementById('grazeDamage').value, 'grazeDamage');
+      const grazeResult = parseAndClampInt(s.grazeDamageRaw, 'grazeDamage');
       if (grazeResult.error) { errorDiv.textContent = grazeResult.error; return; }
       grazeDamage = grazeResult.value;
     }
 
-    const numAttacks    = parseInt(document.getElementById('numAttacks').value, 10);
-    const critThreshold = parseInt(document.getElementById('critThreshold').value, 10);
+    const numAttacks    = parseInt(s.numAttacksRaw, 10);
+    const critThreshold = parseInt(s.critThreshRaw,  10);
 
-    const parsed = parseDiceInput(document.getElementById('weaponDice').value, false);
+    // Parse dice strings
+    const parsed = parseDiceInput(s.weaponDiceRaw, false);
     if (parsed.error) { errorDiv.textContent = parsed.error; return; }
 
-    const parsedBonus = parseDiceInput(document.getElementById('bonusDmgDice').value, true, 5);
+    const parsedBonus = parseDiceInput(s.bonusDiceRaw, true, 5);
     if (parsedBonus.error) { errorDiv.textContent = parsedBonus.error; return; }
-
-    const parsedExtraCrit = parseDiceInput(document.getElementById('extraCritDice').value, true, 5);
+    const parsedExtraCrit = parseDiceInput(s.extraCritRaw, true, 5);
     if (parsedExtraCrit.error) { errorDiv.textContent = parsedExtraCrit.error; return; }
 
     const groups          = parsed.groups;
     const bonusGroups     = parsedBonus.groups;
     const extraCritGroups = parsedExtraCrit.groups;
 
-    // Weapon dice average — use GWF average if toggled
-    const avgDice      = gwf ? totalAvgDiceGWF(groups) : totalAvgDice(groups);
-    const avgBonusDice = totalAvgDice(bonusGroups);
-    const avgExtraCrit = totalAvgDice(extraCritGroups);
+    // TWF: determine off-hand attack count
+    const twfActive  = twfMode !== 'none';
+    let numOffHand   = 0;
+    if (twfActive) {
+      numOffHand = 1;
+      if (twfMode === 'dualwielder' && nickOn) numOffHand = 2;
+    }
 
-    const normalDmg    = avgDice + dmgBonus;
-    const critDmg      = (2 * avgDice) + dmgBonus;
-    const bonusCritDmg = 2 * avgBonusDice;
+    // Off-hand dice (only parsed if TWF active)
+    let offHandGroups = [];
+    if (twfActive) {
+      const parsedOH = parseDiceInput(s.offHandDiceRaw, false);
+      if (parsedOH.error) { errorDiv.textContent = parsedOH.error; return; }
+      offHandGroups = parsedOH.groups;
+    }
+
+    // Averages
+    const avgDice        = gwf ? totalAvgDiceGWF(groups) : totalAvgDice(groups);
+    const avgOffHandDice = totalAvgDice(offHandGroups);
+    const avgBonusDice   = totalAvgDice(bonusGroups);
+    const avgExtraCrit   = totalAvgDice(extraCritGroups);
+
+    // Damage profiles
+    const normalPrimaryDmg    = avgDice + dmgBonus;
+    const critPrimaryDmg      = (2 * avgDice) + dmgBonus;
+    // Off-hand: add dmgBonus only if TWF Fighting Style is checked
+    const offHandBonus        = twfStyle ? dmgBonus : 0;
+    const normalOffHandDmg    = avgOffHandDice + offHandBonus;
+    const critOffHandDmg      = (2 * avgOffHandDice) + offHandBonus;
+    const bonusCritDmg        = 2 * avgBonusDice;
 
     let baseRollMode = 'straight';
-    if (advantage) baseRollMode = 'advantage';
+    if (advantage)   baseRollMode = 'advantage';
     else if (disadvantage) baseRollMode = 'disadvantage';
 
-    const diceLabel  = groups.map(g => `${g.count}d${g.faces}`).join(' + ');
-    const bonusLabel = bonusGroups.length     ? ` + ${bonusGroups.map(g => `${g.count}d${g.faces}`).join('+')} bonus` : '';
-    const extraLabel = extraCritGroups.length ? ` + ${extraCritGroups.map(g => `${g.count}d${g.faces}`).join('+')} crit` : '';
+    // Build the attack sequence map
+    const attackMap = buildAttackMap(numAttacks, numOffHand, nickOn && twfActive);
+    const totalSlots = attackMap.length;
+
+    // Label strings
+    const diceLabel    = groups.map(g => `${g.count}d${g.faces}`).join(' + ');
+    const bonusLabel   = bonusGroups.length     ? ` + ${bonusGroups.map(g=>`${g.count}d${g.faces}`).join('+')} bonus` : '';
+    const extraLabel   = extraCritGroups.length ? ` + ${extraCritGroups.map(g=>`${g.count}d${g.faces}`).join('+')} crit` : '';
+    const ohLabel      = twfActive ? ` + OH:${offHandGroups.map(g=>`${g.count}d${g.faces}`).join('+')}` : '';
 
     const rows = [];
     for (let ac = 10; ac <= 20; ac++) {
       let targetRoll = ac - toHit;
       if (targetRoll < 2)  targetRoll = 2;
       if (targetRoll > 20) targetRoll = 20;
-
       const baseMissChance = (targetRoll - 1) / 20.0;
 
+      // Get per-slot probabilities (Vex chains across the full sequence)
       let attackProbs;
-
-      if (vexOn && numAttacks > 1) {
-        attackProbs = computeVexAttackSequence(baseMissChance, critThreshold, numAttacks, baseRollMode, elvenAccuracy);
+      if (vexOn && totalSlots > 1) {
+        attackProbs = computeVexAttackSequence(baseMissChance, critThreshold, totalSlots, baseRollMode, elvenAccuracy);
       } else {
         const probs = computeAttackProbs(baseMissChance, critThreshold, baseRollMode, elvenAccuracy);
-        attackProbs = Array(numAttacks).fill(probs);
+        attackProbs = Array(totalSlots).fill(probs);
       }
 
-      // ── Weapon damage: sum per attack ──
+      // Sum damage across the attack map
       let totalWeaponExpected = 0;
-      for (let i = 0; i < numAttacks; i++) {
-        const p = attackProbs[i];
-        const attackExpected = (p.normalHitChance * normalDmg)
-                             + (p.critChance * (critDmg + avgExtraCrit))
-                             + (grazeOn ? p.missChance * grazeDamage : 0);
-        totalWeaponExpected += attackExpected;
+      for (let i = 0; i < totalSlots; i++) {
+        const p    = attackProbs[i];
+        const type = attackMap[i]; // 'primary' | 'nick' | 'offhand'
+
+        let normalDmg, critDmg;
+        if (type === 'primary') {
+          normalDmg = normalPrimaryDmg;
+          critDmg   = critPrimaryDmg;
+        } else {
+          // 'nick' and 'offhand' use the off-hand damage profile
+          normalDmg = normalOffHandDmg;
+          critDmg   = critOffHandDmg;
+        }
+
+        const slotExpected = (p.normalHitChance * normalDmg)
+                           + (p.critChance * (critDmg + avgExtraCrit))
+                           + (grazeOn && type === 'primary' ? p.missChance * grazeDamage : 0);
+        totalWeaponExpected += slotExpected;
       }
 
-      // ── Bonus dice (Sneak Attack / Smite): once per turn on first hit ──
+      // Bonus dice (Sneak Attack / Smite): once per turn on first hit across ALL slots
       let expectedBonus = 0;
       if (bonusGroups.length > 0) {
         let pPriorAllMiss = 1.0;
-        for (let i = 0; i < numAttacks; i++) {
-          const p = attackProbs[i];
-          const pHit  = p.normalHitChance + p.critChance;
-          const pFirstHitNormal = pPriorAllMiss * p.normalHitChance;
-          const pFirstHitCrit   = pPriorAllMiss * p.critChance;
-          expectedBonus += pFirstHitNormal * avgBonusDice + pFirstHitCrit * bonusCritDmg;
+        for (let i = 0; i < totalSlots; i++) {
+          const p    = attackProbs[i];
+          const pHit = p.normalHitChance + p.critChance;
+          expectedBonus += pPriorAllMiss * p.normalHitChance * avgBonusDice;
+          expectedBonus += pPriorAllMiss * p.critChance      * bonusCritDmg;
           pPriorAllMiss *= (1.0 - pHit);
         }
       }
 
       const totalExpected = totalWeaponExpected + expectedBonus;
-      const singleExpectedWeapon = totalWeaponExpected / numAttacks;
+      // "Per Attack" shown as per-primary-slot average for meaningful comparison
+      const singleExpectedWeapon = numAttacks > 0 ? totalWeaponExpected / totalSlots : totalWeaponExpected;
 
       rows.push({ ac, totalExpected, singleExpectedWeapon });
     }
@@ -1512,59 +1367,101 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     const maxExpected = rows.reduce((m, r) => Math.max(m, r.totalExpected), 0);
 
     let modeStr = '';
-    if (advantage) modeStr = 'Advantage';
+    if (advantage)   modeStr = 'Advantage';
     else if (disadvantage) modeStr = 'Disadvantage';
-    if (elvenAccuracy) modeStr = modeStr ? modeStr + ' + Elven Acc' : 'Elven Acc (no Adv)';
-    
+    if (elvenAccuracy) modeStr = modeStr ? modeStr + ' + Elven Acc' : 'Elven Acc';
+
     const bonusStr     = dmgBonus >= 0 ? ` + ${dmgBonus}` : ` ${dmgBonus}`;
-    const modeLabel    = modeStr ? ` · ${modeStr}` : '';
-    const gwfLabel     = gwf ? ' · GWF' : '';
-    const grazeLabel   = grazeOn ? ` · Graze +${grazeDamage}` : '';
-    const vexLabel     = vexOn ? ' · Vex' : '';
-    const attacksLabel = `${numAttacks} attack${numAttacks > 1 ? 's' : ''}/turn`;
+    const modeLabel    = modeStr  ? ` · ${modeStr}` : '';
+    const gwfLabel     = gwf      ? ' · GWF' : '';
+    const twfLabel     = twfActive ? ` · TWF(${twfMode === 'dualwielder' ? 'DW' : 'Light'})` : '';
+    const nickLabel    = (nickOn && twfActive) ? ' · Nick' : '';
+    const grazeLabel   = grazeOn  ? ` · Graze +${grazeDamage}` : '';
+    const vexLabel     = vexOn    ? ' · Vex' : '';
+    const attacksLabel = `${numAttacks}MH${numOffHand > 0 ? '+' + numOffHand + 'OH' : ''} attack${totalSlots > 1 ? 's' : ''}/turn`;
     const critLabel    = critThreshold < 20 ? ` · Crit ${critThreshold}–20` : '';
 
-    currentCalcData = { rows, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel, maxExpected };
-    renderResults(rows, maxExpected, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel);
+    currentCalcData = { rows, diceLabel, bonusStr, bonusLabel, extraLabel, ohLabel,
+                        attacksLabel, modeLabel, gwfLabel, twfLabel, nickLabel,
+                        grazeLabel, vexLabel, critLabel, maxExpected };
+
+    renderResultsUI({
+      containerId:  'results-container',
+      title:        '\u2694 Total Turn Damage',
+      subtitle:     `${diceLabel}${bonusStr}${bonusLabel}${extraLabel}${ohLabel} \u00B7 ${attacksLabel}${modeLabel}${gwfLabel}${twfLabel}${nickLabel}${grazeLabel}${vexLabel}${critLabel}`,
+      tableHeaders: ['AC', 'Turn Damage', 'Per Slot', 'Power'],
+      rows:         rows.map(r => ({ label: String(r.ac), primary: r.totalExpected, secondary: r.singleExpectedWeapon })),
+      maxExpected,
+      canvasId:     'dmg-chart',
+      getChart:     () => attackChart,
+      setChart:     (c) => { attackChart = c; },
+      chartRenderer: () => renderChart(rows),
+      exportConfig: {
+        tsvId: 'export-tsv', csvId: 'export-csv', imgId: 'export-img',
+        filename: 'dnd-damage-chart.png',
+        getCalcData: () => currentCalcData,
+        formatTSV: (d) => {
+          const meta   = `# D&D Damage \u2014 ${sanitizeCell(d.diceLabel)}${sanitizeCell(d.bonusStr)}${sanitizeCell(d.bonusLabel)}${sanitizeCell(d.extraLabel)}${sanitizeCell(d.ohLabel)} \u00B7 ${sanitizeCell(d.attacksLabel)}${sanitizeCell(d.modeLabel)}${sanitizeCell(d.gwfLabel)}${sanitizeCell(d.twfLabel)}${sanitizeCell(d.nickLabel)}${sanitizeCell(d.grazeLabel)}${sanitizeCell(d.vexLabel)}${sanitizeCell(d.critLabel)}`;
+          const header = 'AC\tTurn Damage\tPer Slot';
+          const body   = d.rows.map(r => `${sanitizeCell(r.ac)}\t${sanitizeCell(r.totalExpected.toFixed(2))}\t${sanitizeCell(r.singleExpectedWeapon.toFixed(2))}`).join('\n');
+          return `${meta}\n${header}\n${body}`;
+        },
+        formatCSV: (d) => {
+          const meta   = `"# D&D Damage \u2014 ${sanitizeCell(d.diceLabel)}${sanitizeCell(d.bonusStr)}${sanitizeCell(d.bonusLabel)}${sanitizeCell(d.extraLabel)}${sanitizeCell(d.ohLabel)} \u00B7 ${sanitizeCell(d.attacksLabel)}${sanitizeCell(d.modeLabel)}${sanitizeCell(d.gwfLabel)}${sanitizeCell(d.twfLabel)}${sanitizeCell(d.nickLabel)}${sanitizeCell(d.grazeLabel)}${sanitizeCell(d.vexLabel)}${sanitizeCell(d.critLabel)}"`;
+          const header = '"AC","Turn Damage","Per Slot"';
+          const body   = d.rows.map(r => `"${sanitizeCell(r.ac)}","${sanitizeCell(r.totalExpected.toFixed(2))}","${sanitizeCell(r.singleExpectedWeapon.toFixed(2))}"`).join('\n');
+          return `${meta}\n${header}\n${body}`;
+        },
+      },
+    });
   }
 
-  /* ── Render results ── */
-  function renderResults(rows, maxExpected, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel) {
-    const resultsDiv = document.getElementById('results-container');
-
-    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  /* ══════════════════════════════════════════
+     RENDER ATTACK RESULTS
+  ══════════════════════════════════════════ */
+  /* ══════════════════════════════════════════
+     SHARED RESULTS RENDERER (Fix 5 — DRY)
+  ══════════════════════════════════════════ */
+  function renderResultsUI(cfg) {
+    const resultsDiv = document.getElementById(cfg.containerId);
+    // Destroy only the chart owned by THIS panel, not the other calculator's chart
+    const prevChart = cfg.getChart();
+    if (prevChart) { prevChart.destroy(); cfg.setChart(null); }
     while (resultsDiv.firstChild) resultsDiv.removeChild(resultsDiv.firstChild);
 
+    const paneTableId = cfg.canvasId + '-pane-table';
+    const paneChartId = cfg.canvasId + '-pane-chart';
+
+    const frag  = document.createDocumentFragment();
     const panel = el('div', { class: 'panel results-panel' });
-    const panelCorners = el('div', { class: 'panel-corners', 'aria-hidden': 'true' });
-    panel.appendChild(panelCorners);
+    panel.appendChild(el('div', { class: 'panel-corners', 'aria-hidden': 'true' }));
+    panel.appendChild(el('div', { class: 'results-title'    }, cfg.title));
+    panel.appendChild(el('div', { class: 'results-subtitle' }, cfg.subtitle));
 
-    panel.appendChild(el('div', { class: 'results-title'    }, `⚔ Total Turn Damage`));
-    panel.appendChild(el('div', { class: 'results-subtitle' },
-      `${diceLabel}${bonusStr}${bonusLabel}${extraLabel} · ${attacksLabel}${modeLabel}${gwfLabel}${grazeLabel}${vexLabel}${critLabel}`));
-
-    const tabBar   = el('div',    { class: 'view-tabs', role: 'tablist' });
-    const tabTable = el('button', { class: 'view-tab active', 'data-tab': 'table', role: 'tab', type: 'button', 'aria-selected': 'true',  'aria-controls': 'pane-table' }, '📋 Table');
-    const tabChart = el('button', { class: 'view-tab',        'data-tab': 'chart', role: 'tab', type: 'button', 'aria-selected': 'false', 'aria-controls': 'pane-chart' }, '📈 Graph');
-    tabBar.appendChild(tabTable);
-    tabBar.appendChild(tabChart);
+    // Tab bar — each tab carries data-target pointing at its pane id (Fix 8)
+    const tabBar   = el('div', { class: 'view-tabs', role: 'tablist' });
+    const tabTable = el('button', { class: 'view-tab active', role: 'tab', type: 'button',
+                                    'data-target': paneTableId, 'aria-selected': 'true',
+                                    'aria-controls': paneTableId }, '\u{1F4CB} Table');
+    const tabChart = el('button', { class: 'view-tab', role: 'tab', type: 'button',
+                                    'data-target': paneChartId, 'aria-selected': 'false',
+                                    'aria-controls': paneChartId }, '\u{1F4C8} Graph');
+    tabBar.appendChild(tabTable); tabBar.appendChild(tabChart);
     panel.appendChild(tabBar);
 
-    /* Table pane */
-    const paneTable = el('div', { class: 'view-pane active', id: 'pane-table', role: 'tabpanel' });
+    // Table pane
+    const paneTable = el('div', { class: 'view-pane active', id: paneTableId, role: 'tabpanel' });
     const scroll    = el('div', { class: 'table-scroll' });
-    const table     = el('table', { role: 'table', 'aria-label': 'Expected damage by armor class' });
+    const table     = el('table', { role: 'table', 'aria-label': cfg.title });
     const thead     = el('thead');
     const headerRow = el('tr');
-    ['AC', 'Turn Damage', 'Per Attack', 'Power'].forEach(h => {
-      headerRow.appendChild(el('th', { scope: 'col' }, h));
-    });
+    cfg.tableHeaders.forEach(h => headerRow.appendChild(el('th', { scope: 'col' }, h)));
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
     const tbody = el('tbody');
-    for (const row of rows) {
-      const barWidth  = maxExpected > 0 ? (row.totalExpected / maxExpected) * 100 : 0;
+    for (const row of cfg.rows) {
+      const barWidth  = cfg.maxExpected > 0 ? (row.primary / cfg.maxExpected) * 100 : 0;
       const tierClass = barWidth > 65 ? 'tier-high' : (barWidth > 35 ? 'tier-mid' : 'tier-low');
       const barColor  = barWidth > 65
         ? 'linear-gradient(90deg,var(--gold-dim),var(--gold-light))'
@@ -1573,29 +1470,26 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
             : 'linear-gradient(90deg,var(--steel),var(--blade))');
 
       const tr = el('tr', { class: tierClass });
-      tr.appendChild(el('td', { class: 'ac-cell' }, String(row.ac)));
+      tr.appendChild(el('td', { class: 'ac-cell' }, row.label));
 
-      const dmgCell = el('td', { class: 'dmg-cell', style: { position: 'relative', paddingBottom: '12px' } },
-        row.totalExpected.toFixed(2));
+      const dmgCell = el('td', { class: 'dmg-cell', style: { position: 'relative', paddingBottom: '12px' } }, row.primary.toFixed(2));
       const bar = el('div', { class: 'dmg-bar' });
       bar.style.width      = barWidth.toFixed(1) + '%';
       bar.style.background = barColor;
       dmgCell.appendChild(bar);
       tr.appendChild(dmgCell);
 
-      tr.appendChild(el('td', {}, row.singleExpectedWeapon.toFixed(2)));
+      if (row.secondary !== undefined && row.secondary !== null) {
+        tr.appendChild(el('td', {}, row.secondary.toFixed(2)));
+      }
 
       const powerCell  = el('td');
       const powerOuter = el('div', { style: { background: 'rgba(255,255,255,0.06)', borderRadius: '2px', height: '8px', overflow: 'hidden' } });
       const powerInner = el('div');
-      Object.assign(powerInner.style, {
-        height: '100%', width: barWidth.toFixed(1) + '%',
-        background: barColor, borderRadius: '2px', transition: 'width 0.4s ease'
-      });
+      Object.assign(powerInner.style, { height: '100%', width: barWidth.toFixed(1) + '%', background: barColor, borderRadius: '2px', transition: 'width 0.4s ease' });
       powerOuter.appendChild(powerInner);
       powerCell.appendChild(powerOuter);
       tr.appendChild(powerCell);
-
       tbody.appendChild(tr);
     }
     table.appendChild(tbody);
@@ -1603,388 +1497,293 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     paneTable.appendChild(scroll);
     panel.appendChild(paneTable);
 
-    /* Chart pane */
-    const paneChart = el('div', { class: 'view-pane', id: 'pane-chart', role: 'tabpanel' });
+    // Chart pane
+    const paneChart = el('div', { class: 'view-pane', id: paneChartId, role: 'tabpanel' });
     const chartWrap = el('div', { class: 'chart-wrap' });
-    chartWrap.appendChild(el('canvas', { id: 'dmg-chart', 'aria-label': 'Expected damage line chart' }));
+    chartWrap.appendChild(el('canvas', { id: cfg.canvasId, 'aria-label': cfg.title + ' chart' }));
     paneChart.appendChild(chartWrap);
     panel.appendChild(paneChart);
 
+    // Export buttons — ids supplied by caller (Fix 6)
     const exportBar = el('div', { class: 'export-bar' });
-
-    const btnTSV = el('button', { class: 'export-btn', id: 'export-tsv', type: 'button' });
-    btnTSV.appendChild(el('span', { class: 'btn-icon' }, '📄'));
-    btnTSV.appendChild(document.createTextNode(' Copy as TSV'));
-
-    const btnCSV = el('button', { class: 'export-btn', id: 'export-csv', type: 'button' });
-    btnCSV.appendChild(el('span', { class: 'btn-icon' }, '📊'));
-    btnCSV.appendChild(document.createTextNode(' Copy as CSV'));
-
-    const btnImg = el('button', { class: 'export-btn', id: 'export-img', type: 'button', 'aria-label': 'Copy chart as image', title: 'Copy chart as PNG image' });
-    btnImg.appendChild(el('span', { class: 'btn-icon' }, '🖼️'));
-    btnImg.appendChild(document.createTextNode(' Copy Chart Image'));
-
-    exportBar.appendChild(btnTSV);
-    exportBar.appendChild(btnCSV);
-    exportBar.appendChild(btnImg);
+    const ec = cfg.exportConfig;
+    [[ec.tsvId,'\u{1F4C4}',' Copy as TSV'],[ec.csvId,'\u{1F4CA}',' Copy as CSV'],[ec.imgId,'\u{1F5BC}',' Copy Chart Image']].forEach(([id, icon, label]) => {
+      const btn = el('button', { class: 'export-btn', id, type: 'button' });
+      btn.appendChild(el('span', { class: 'btn-icon' }, icon));
+      btn.appendChild(document.createTextNode(label));
+      exportBar.appendChild(btn);
+    });
     panel.appendChild(exportBar);
 
-    resultsDiv.appendChild(panel);
+    frag.appendChild(panel);
+    resultsDiv.appendChild(frag);
 
-    bindTabListeners(tabTable, tabChart, paneTable, paneChart);
-    bindExportListeners();
-    renderChart(rows, modeLabel, critLabel, grazeLabel, vexLabel);
+    bindTabListeners(tabBar);
+    bindExportButtons(ec);
+    cfg.chartRenderer(cfg.rows);
   }
 
-  /* ── Tab switching ── */
-  function bindTabListeners(tabTable, tabChart, paneTable, paneChart) {
-    const tabs  = [tabTable, tabChart];
-    const panes = [paneTable, paneChart];
-    tabs.forEach((tab, i) => {
+  /* ══════════════════════════════════════════
+     SPELL CALCULATION
+  ══════════════════════════════════════════ */
+  function calculateSpellExpectedDamage() {
+    const errorDiv = document.getElementById('spell-error-message');
+    errorDiv.textContent = '';
+
+    // Collect all form values into a plain state object (Fix 2)
+    const s = getSpellState();
+
+    const dcResult = parseAndClampInt(s.spellSaveDCRaw, 'spellSaveDC');
+    if (dcResult.error) { errorDiv.textContent = dcResult.error; return; }
+    const dc = dcResult.value;
+    const { saveForHalf, spellAdv, spellDis } = s;
+    let rollMode = 'straight';
+    if (spellAdv) rollMode = 'advantage';
+    else if (spellDis) rollMode = 'disadvantage';
+
+    const parsed = parseDiceInput(s.spellDiceRaw, false);
+    if (parsed.error) { errorDiv.textContent = parsed.error; return; }
+
+    const avgRawDamage    = totalAvgDice(parsed.groups);
+    const mitigatedDamage = saveForHalf ? avgRawDamage / 2.0 : 0.0;
+
+    const rows = [];
+    for (let saveMod = 0; saveMod <= 10; saveMod++) {
+      const { failChance, successChance } = computeSaveProbs(saveMod, dc, rollMode);
+      const totalExpected = (failChance * avgRawDamage) + (successChance * mitigatedDamage);
+      rows.push({ saveMod, totalExpected });
+    }
+
+    const maxExpected = rows.reduce((m, r) => Math.max(m, r.totalExpected), 0);
+    const diceLabel   = parsed.groups.map(g => `${g.count}d${g.faces}`).join(' + ');
+    const halfLabel   = saveForHalf ? ' · Save for Half' : ' · No Dmg on Save';
+    const modeLabel   = spellAdv ? ' · Adv. on Save' : spellDis ? ' · Disadv. on Save' : '';
+
+    currentSpellCalcData = { rows, maxExpected, diceLabel, dc, halfLabel, modeLabel };
+
+    renderResultsUI({
+      containerId:  'spell-results-container',
+      title:        '\u2728 Expected Spell Damage',
+      subtitle:     `${diceLabel} \u00B7 DC ${dc}${halfLabel}${modeLabel}`,
+      tableHeaders: ['Save Modifier', 'Expected Damage', 'Power'],
+      rows:         rows.map(r => ({ label: `+${r.saveMod}`, primary: r.totalExpected })),
+      maxExpected,
+      canvasId:     'spell-dmg-chart',
+      getChart:     () => spellChart,
+      setChart:     (c) => { spellChart = c; },
+      chartRenderer: () => renderSpellChart(rows),
+      exportConfig: {
+        tsvId: 'spell-export-tsv', csvId: 'spell-export-csv', imgId: 'spell-export-img',
+        filename: 'dnd-spell-chart.png',
+        getCalcData: () => currentSpellCalcData,
+        formatTSV: (d) => {
+          const meta   = `# D&D Spell Damage \u2014 ${sanitizeCell(d.diceLabel)} \u00B7 DC ${sanitizeCell(String(d.dc))}${sanitizeCell(d.halfLabel)}${sanitizeCell(d.modeLabel)}`;
+          const header = 'Save Modifier\tExpected Damage';
+          const body   = d.rows.map(r => `${sanitizeCell('+' + r.saveMod)}\t${sanitizeCell(r.totalExpected.toFixed(2))}`).join('\n');
+          return `${meta}\n${header}\n${body}`;
+        },
+        formatCSV: (d) => {
+          const meta   = `"# D&D Spell Damage \u2014 ${sanitizeCell(d.diceLabel)} \u00B7 DC ${sanitizeCell(String(d.dc))}${sanitizeCell(d.halfLabel)}${sanitizeCell(d.modeLabel)}"`;
+          const header = '"Save Modifier","Expected Damage"';
+          const body   = d.rows.map(r => `"${sanitizeCell('+' + r.saveMod)}","${sanitizeCell(r.totalExpected.toFixed(2))}"`).join('\n');
+          return `${meta}\n${header}\n${body}`;
+        },
+      },
+    });
+  }
+
+  /* ══════════════════════════════════════════
+     TAB SWITCHING (Fix 8 — data-target)
+     Tabs link to panes via data-target attr.
+     No brittle parallel-array index matching.
+  ══════════════════════════════════════════ */
+  function bindTabListeners(tabBar) {
+    Array.from(tabBar.querySelectorAll('.view-tab')).forEach(tab => {
       tab.addEventListener('click', () => {
-        tabs.forEach(t  => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-        panes.forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        tab.setAttribute('aria-selected', 'true');
-        panes[i].classList.add('active');
-        if (tab === tabChart && chartInstance) chartInstance.resize();
+        const targetId = tab.getAttribute('data-target');
+        const panel    = tabBar.closest('.panel');
+        panel.querySelectorAll('.view-tab').forEach(t => {
+          t.classList.remove('active'); t.setAttribute('aria-selected', 'false');
+        });
+        panel.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active'); tab.setAttribute('aria-selected', 'true');
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) targetPane.classList.add('active');
+        if (targetId.includes('chart')) {
+          // Resize whichever chart is active in this panel
+          const panel = tabBar.closest('.panel');
+          if (panel) {
+            const canvas = panel.querySelector('canvas');
+            if (canvas) {
+            const chartInstance = Chart.getChart(canvas);
+            if (chartInstance) chartInstance.resize();
+          }
+          }
+        }
       });
     });
   }
 
-  /* ── Export listeners ── */
-  function bindExportListeners() {
-    document.getElementById('export-tsv').addEventListener('click', () => {
-      if (!currentCalcData) return;
-      const { rows, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel } = currentCalcData;
-      const header = 'AC\tTurn Damage\tPer Attack';
-      const body   = rows.map(r =>
-        `${sanitizeCell(r.ac)}\t${sanitizeCell(r.totalExpected.toFixed(2))}\t${sanitizeCell(r.singleExpectedWeapon.toFixed(2))}`
-      ).join('\n');
-      const meta = `# D&D Damage — ${sanitizeCell(diceLabel)}${sanitizeCell(bonusStr)}${sanitizeCell(bonusLabel)}${sanitizeCell(extraLabel)} · ${sanitizeCell(attacksLabel)}${sanitizeCell(modeLabel)}${sanitizeCell(gwfLabel)}${sanitizeCell(grazeLabel)}${sanitizeCell(vexLabel)}${sanitizeCell(critLabel)}`;
-      copyText(`${meta}\n${header}\n${body}`);
-      showToast('✦ TSV copied — paste into Excel, Sheets, or Word');
+  /* ══════════════════════════════════════════
+     EXPORT BUTTONS (Fix 6 — unified binder)
+     Single bindExportButtons() replaces the
+     two duplicate export listener functions.
+  ══════════════════════════════════════════ */
+  function bindExportButtons(ec) {
+    document.getElementById(ec.tsvId).addEventListener('click', () => {
+      const d = ec.getCalcData();
+      if (!d) return;
+      copyText(ec.formatTSV(d));
+      showToast('\u2746 TSV copied \u2014 paste into Excel, Sheets, or Word');
     });
-
-    document.getElementById('export-csv').addEventListener('click', () => {
-      if (!currentCalcData) return;
-      const { rows, diceLabel, bonusStr, bonusLabel, extraLabel, attacksLabel, modeLabel, gwfLabel, grazeLabel, vexLabel, critLabel } = currentCalcData;
-      const header = '"AC","Turn Damage","Per Attack"';
-      const body   = rows.map(r =>
-        `"${sanitizeCell(r.ac)}","${sanitizeCell(r.totalExpected.toFixed(2))}","${sanitizeCell(r.singleExpectedWeapon.toFixed(2))}"`
-      ).join('\n');
-      const meta = `"# D&D Damage — ${sanitizeCell(diceLabel)}${sanitizeCell(bonusStr)}${sanitizeCell(bonusLabel)}${sanitizeCell(extraLabel)} · ${sanitizeCell(attacksLabel)}${sanitizeCell(modeLabel)}${sanitizeCell(gwfLabel)}${sanitizeCell(grazeLabel)}${sanitizeCell(vexLabel)}${sanitizeCell(critLabel)}"`;
-      copyText(`${meta}\n${header}\n${body}`);
-      showToast('✦ CSV copied to clipboard');
+    document.getElementById(ec.csvId).addEventListener('click', () => {
+      const d = ec.getCalcData();
+      if (!d) return;
+      copyText(ec.formatCSV(d));
+      showToast('\u2746 CSV copied to clipboard');
     });
-
-    document.getElementById('export-img').addEventListener('click', () => {
-      if (!currentCalcData) return;
-      if (typeof Chart === 'undefined') { showToast('⚠ Graph is unavailable'); return; }
-
-      const paneChart = document.getElementById('pane-chart');
-      const paneTable = document.getElementById('pane-table');
-      const tabChart  = document.querySelector('[data-tab="chart"]');
-      const tabTable  = document.querySelector('[data-tab="table"]');
-      const wasHidden = !paneChart.classList.contains('active');
-      if (wasHidden) {
-        if (paneTable) paneTable.classList.remove('active');
-        if (tabTable)  { tabTable.classList.remove('active'); tabTable.setAttribute('aria-selected', 'false'); }
-        paneChart.classList.add('active');
-        if (tabChart)  { tabChart.classList.add('active'); tabChart.setAttribute('aria-selected', 'true'); }
-      }
-
-      const canvas = document.getElementById('dmg-chart');
-      if (!canvas) { showToast('⚠ Chart canvas not found'); return; }
-      if (chartInstance) chartInstance.resize();
-
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const ctx = tempCanvas.getContext('2d');
-      ctx.fillStyle = '#2a2a2e'; 
-      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-      ctx.drawImage(canvas, 0, 0);
-
-      try {
-        if (navigator.clipboard && window.ClipboardItem) {
-          tempCanvas.toBlob(blob => {
-            if (!blob) {
-              showToast('⚠ Could not generate image');
-              return;
-            }
-            try {
-              const item = new ClipboardItem({ 'image/png': blob });
-              navigator.clipboard.write([item])
-                .then(() => showToast('✦ Chart image copied to clipboard'))
-                .catch(err => {
-                  console.warn('Clipboard write failed, downloading instead:', err);
-                  showToast('⚠ Clipboard blocked — downloading as PNG');
-                  downloadFallback(blob);
-                });
-            } catch (err) {
-              const p = Promise.resolve(blob);
-              const item = new ClipboardItem({ 'image/png': p });
-              navigator.clipboard.write([item])
-                .then(() => showToast('✦ Chart image copied to clipboard'))
-                .catch(() => downloadFallback(blob));
-            }
-          });
-        } else {
-          showToast('⚠ Copy not supported — downloading as PNG');
-          tempCanvas.toBlob(blob => {
-            if (blob) downloadFallback(blob);
-            else showToast('⚠ Could not generate image');
-          });
-        }
-      } catch (err) {
-        showToast('⚠ Error — downloading as PNG');
-        console.warn('Clipboard image error:', err);
-        tempCanvas.toBlob(blob => {
-          if (blob) downloadFallback(blob);
-        });
-      }
+    document.getElementById(ec.imgId).addEventListener('click', () => {
+      if (!ec.getCalcData()) return;
+      if (typeof Chart === 'undefined') { showToast('\u26A0 Graph is unavailable'); return; }
+      exportChartImage(ec);
     });
   }
 
-  /* ── Spell export listeners ── */
-  function bindSpellExportListeners() {
-    document.getElementById('spell-export-tsv').addEventListener('click', () => {
-      if (!currentSpellCalcData) return;
-      const { rows, diceLabel, dc, halfLabel, modeLabel } = currentSpellCalcData;
-      const header = 'Save Modifier\tExpected Damage';
-      const body   = rows.map(r =>
-        `${sanitizeCell('+' + r.saveMod)}\t${sanitizeCell(r.totalExpected.toFixed(2))}`
-      ).join('\n');
-      const meta = `# D&D Spell Damage — ${sanitizeCell(diceLabel)} · DC ${sanitizeCell(String(dc))}${sanitizeCell(halfLabel)}${sanitizeCell(modeLabel)}`;
-      copyText(`${meta}\n${header}\n${body}`);
-      showToast('✦ TSV copied — paste into Excel, Sheets, or Word');
-    });
-
-    document.getElementById('spell-export-csv').addEventListener('click', () => {
-      if (!currentSpellCalcData) return;
-      const { rows, diceLabel, dc, halfLabel, modeLabel } = currentSpellCalcData;
-      const header = '"Save Modifier","Expected Damage"';
-      const body   = rows.map(r =>
-        `"${sanitizeCell('+' + r.saveMod)}","${sanitizeCell(r.totalExpected.toFixed(2))}"`
-      ).join('\n');
-      const meta = `"# D&D Spell Damage — ${sanitizeCell(diceLabel)} · DC ${sanitizeCell(String(dc))}${sanitizeCell(halfLabel)}${sanitizeCell(modeLabel)}"`;
-      copyText(`${meta}\n${header}\n${body}`);
-      showToast('✦ CSV copied to clipboard');
-    });
-
-    document.getElementById('spell-export-img').addEventListener('click', () => {
-      if (!currentSpellCalcData) return;
-      if (typeof Chart === 'undefined') { showToast('⚠ Graph is unavailable'); return; }
-
-      const paneChart = document.getElementById('spell-pane-chart');
-      const paneTable = document.getElementById('spell-pane-table');
-      const tabChart  = document.querySelector('[data-tab="spell-chart"]');
-      const tabTable  = document.querySelector('[data-tab="spell-table"]');
-      const wasHidden = !paneChart.classList.contains('active');
-      if (wasHidden) {
-        if (paneTable) paneTable.classList.remove('active');
-        if (tabTable)  { tabTable.classList.remove('active'); tabTable.setAttribute('aria-selected', 'false'); }
-        paneChart.classList.add('active');
-        if (tabChart)  { tabChart.classList.add('active'); tabChart.setAttribute('aria-selected', 'true'); }
-      }
-
-      const canvas = document.getElementById('spell-dmg-chart');
-      if (!canvas) { showToast('⚠ Chart canvas not found'); return; }
-      if (chartInstance) chartInstance.resize();
-
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width  = canvas.width;
-      tempCanvas.height = canvas.height;
-      const ctx = tempCanvas.getContext('2d');
-      ctx.fillStyle = '#2a2a2e';
-      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-      ctx.drawImage(canvas, 0, 0);
-
-      try {
-        if (navigator.clipboard && window.ClipboardItem) {
-          tempCanvas.toBlob(blob => {
-            if (!blob) { showToast('⚠ Could not generate image'); return; }
-            try {
-              const item = new ClipboardItem({ 'image/png': blob });
-              navigator.clipboard.write([item])
-                .then(() => showToast('✦ Chart image copied to clipboard'))
-                .catch(err => {
-                  console.warn('Clipboard write failed, downloading instead:', err);
-                  showToast('⚠ Clipboard blocked — downloading as PNG');
-                  downloadFallback(blob);
-                });
-            } catch (err) {
-              const p = Promise.resolve(blob);
-              const item = new ClipboardItem({ 'image/png': p });
-              navigator.clipboard.write([item])
-                .then(() => showToast('✦ Chart image copied to clipboard'))
-                .catch(() => downloadFallback(blob));
-            }
-          });
-        } else {
-          showToast('⚠ Copy not supported — downloading as PNG');
-          tempCanvas.toBlob(blob => {
-            if (blob) downloadFallback(blob);
-            else showToast('⚠ Could not generate image');
-          });
-        }
-      } catch (err) {
-        showToast('⚠ Error — downloading as PNG');
-        console.warn('Clipboard image error:', err);
-        tempCanvas.toBlob(blob => { if (blob) downloadFallback(blob); });
-      }
+  /* ══════════════════════════════════════════
+     CHART IMAGE EXPORT (Fix 1 — async/await)
+     toBlob is wrapped in a Promise so the
+     outer try/catch actually catches errors.
+     Single ClipboardItem path eliminates the
+     nested Safari-workaround spaghetti.
+  ══════════════════════════════════════════ */
+  function canvasToBlob(canvas) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('toBlob returned null')));
     });
   }
 
-  function downloadFallback(blob) {
+  async function exportChartImage(ec) {
+    // Bring chart pane into view so canvas has real pixel dimensions
+    const panel     = document.getElementById(ec.imgId).closest('.panel');
+    const chartPane = panel && panel.querySelector('.view-pane[id*="chart"]');
+    if (chartPane && !chartPane.classList.contains('active')) {
+      panel.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
+      panel.querySelectorAll('.view-tab').forEach(t => {
+        t.classList.remove('active'); t.setAttribute('aria-selected', 'false');
+      });
+      chartPane.classList.add('active');
+      const chartTab = panel.querySelector('[data-target="' + chartPane.id + '"]');
+      if (chartTab) { chartTab.classList.add('active'); chartTab.setAttribute('aria-selected', 'true'); }
+    }
+
+    const canvas = panel && panel.querySelector('canvas');
+    if (!canvas) { showToast('\u26A0 Chart canvas not found'); return; }
+    // Resize the chart in this specific panel (not a shared global)
+    const panelCanvas = panel && panel.querySelector('canvas');
+    if (panelCanvas) {
+      const chartInstance = Chart.getChart(panelCanvas);
+      if (chartInstance) chartInstance.resize();
+    }
+
+    const tmp = document.createElement('canvas');
+    tmp.width = canvas.width; tmp.height = canvas.height;
+    const ctx = tmp.getContext('2d');
+    ctx.fillStyle = '#2a2a2e';
+    ctx.fillRect(0, 0, tmp.width, tmp.height);
+    ctx.drawImage(canvas, 0, 0);
+
+    try {
+      const blob = await canvasToBlob(tmp);
+      if (navigator.clipboard && window.ClipboardItem) {
+        // Passing a Promise<Blob> works in Chrome and modern Safari
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': Promise.resolve(blob) })]);
+        showToast('\u2746 Chart image copied to clipboard');
+      } else {
+        showToast('\u26A0 Copy not supported \u2014 downloading as PNG');
+        downloadFallback(blob, ec.filename);
+      }
+    } catch (err) {
+      console.warn('Chart export failed, falling back to download:', err);
+      showToast('\u26A0 Clipboard blocked \u2014 downloading as PNG');
+      try { downloadFallback(await canvasToBlob(tmp), ec.filename); }
+      catch (e) { showToast('\u26A0 Could not generate image'); }
+    }
+  }
+  function downloadFallback(blob, filename) {
     const url = URL.createObjectURL(blob);
-    const a   = el('a', { href: url, download: 'dnd-damage-chart.png' });
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const a   = el('a', { href: url, download: filename || 'dnd-damage-chart.png' });
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
     showToast('✦ Chart downloaded as PNG');
   }
 
-  /* ── Chart rendering ── */
-  function renderChart(rows, modeLabel, critLabel, grazeLabel, vexLabel) {
+  /* ══════════════════════════════════════════
+     CHART RENDERING
+  ══════════════════════════════════════════ */
+  const CHART_DEFAULTS = {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 0 },
+    plugins: {
+      legend: { labels: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 11 }, usePointStyle: true } },
+      tooltip: { backgroundColor: '#26262d', borderColor: '#5a5a66', borderWidth: 1,
+                  titleColor: '#e8b84b', bodyColor: '#f0e6cc',
+                  titleFont: { family: "'Cinzel', serif", size: 11 },
+                  bodyFont:  { family: "'IM Fell English', serif", size: 12 } }
+    },
+    scales: {
+      x: { grid: { color: 'rgba(90,90,102,0.3)' }, ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } } },
+      y: { grid: { color: 'rgba(90,90,102,0.3)' }, ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } },
+           title: { display: true, text: 'Expected Damage', color: '#7a5518', font: { family: "'Cinzel', serif", size: 10 } } }
+    }
+  };
+
+  function renderChart(rows) {
     const canvas = document.getElementById('dmg-chart');
     if (!canvas) return;
-
-    if (typeof Chart === 'undefined') {
-      const chartWrap = canvas.parentElement;
-      chartWrap.removeChild(canvas);
-      const errMsg = el('div', {
-        style: { color: 'var(--blade)', textAlign: 'center', paddingTop: '80px', fontFamily: "'Cinzel', serif", fontSize: '0.75rem' }
-      }, 'Graph unavailable (Chart.js blocked or failed to load).');
-      chartWrap.appendChild(errMsg);
-      return;
-    }
-
+    if (typeof Chart === 'undefined') { showChartUnavailable(canvas); return; }
     const labels   = rows.map(r => `AC ${r.ac}`);
     const turnData = rows.map(r => parseFloat(r.totalExpected.toFixed(2)));
-    const perAtk   = rows.map(r => parseFloat(r.singleExpectedWeapon.toFixed(2)));
-
-    chartInstance = new Chart(canvas, {
+    const perSlot  = rows.map(r => parseFloat(r.singleExpectedWeapon.toFixed(2)));
+    attackChart = new Chart(canvas, {
       type: 'line',
       data: {
         labels,
         datasets: [
-          {
-            label: 'Turn Damage', data: turnData, borderColor: '#e8b84b',
-            backgroundColor: 'rgba(200,146,42,0.12)', borderWidth: 2.5,
-            pointBackgroundColor: '#e8b84b', pointRadius: 4, pointHoverRadius: 6,
-            tension: 0.35, fill: true
-          },
-          {
-            label: 'Per Attack', data: perAtk, borderColor: '#c0392b',
-            backgroundColor: 'rgba(139,26,26,0.08)', borderWidth: 2,
-            pointBackgroundColor: '#c0392b', pointRadius: 3, pointHoverRadius: 5,
-            tension: 0.35, fill: true, borderDash: [5, 4]
-          }
+          { label: 'Turn Damage',  data: turnData, borderColor: '#e8b84b', backgroundColor: 'rgba(200,146,42,0.12)', borderWidth: 2.5, pointBackgroundColor: '#e8b84b', pointRadius: 4, pointHoverRadius: 6, tension: 0.35, fill: true },
+          { label: 'Per Slot',     data: perSlot,  borderColor: '#c0392b', backgroundColor: 'rgba(139,26,26,0.08)',  borderWidth: 2,   pointBackgroundColor: '#c0392b', pointRadius: 3, pointHoverRadius: 5, tension: 0.35, fill: true, borderDash: [5,4] }
         ]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 0 },
-        plugins: {
-          legend: {
-            labels: {
-              color: '#d4c49a',
-              font: { family: "'Cinzel', serif", size: 11 },
-              usePointStyle: true
-            }
-          },
-          tooltip: {
-            backgroundColor: '#26262d', borderColor: '#5a5a66', borderWidth: 1,
-            titleColor: '#e8b84b', bodyColor: '#f0e6cc',
-            titleFont: { family: "'Cinzel', serif", size: 11 },
-            bodyFont:  { family: "'IM Fell English', serif", size: 12 }
-          }
-        },
-        scales: {
-          x: {
-            grid:  { color: 'rgba(90,90,102,0.3)' },
-            ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } }
-          },
-          y: {
-            grid:  { color: 'rgba(90,90,102,0.3)' },
-            ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } },
-            title: { display: true, text: 'Expected Damage', color: '#7a5518', font: { family: "'Cinzel', serif", size: 10 } }
-          }
-        }
-      }
+      options: CHART_DEFAULTS
     });
   }
 
-  /* ── Spell chart rendering ── */
-  function renderSpellChart(rows, modeLabel) {
+  function renderSpellChart(rows) {
     const canvas = document.getElementById('spell-dmg-chart');
     if (!canvas) return;
-
-    if (typeof Chart === 'undefined') {
-      const chartWrap = canvas.parentElement;
-      chartWrap.removeChild(canvas);
-      const errMsg = el('div', {
-        style: { color: 'var(--blade)', textAlign: 'center', paddingTop: '80px', fontFamily: "'Cinzel', serif", fontSize: '0.75rem' }
-      }, 'Graph unavailable (Chart.js blocked or failed to load).');
-      chartWrap.appendChild(errMsg);
-      return;
-    }
-
-    const labels   = rows.map(r => `+${r.saveMod} Save`);
-    const dmgData  = rows.map(r => parseFloat(r.totalExpected.toFixed(2)));
-
-    chartInstance = new Chart(canvas, {
+    if (typeof Chart === 'undefined') { showChartUnavailable(canvas); return; }
+    const labels  = rows.map(r => `+${r.saveMod} Save`);
+    const dmgData = rows.map(r => parseFloat(r.totalExpected.toFixed(2)));
+    spellChart = new Chart(canvas, {
       type: 'line',
       data: {
         labels,
         datasets: [
-          {
-            label: 'Expected Damage', data: dmgData, borderColor: '#e8b84b',
-            backgroundColor: 'rgba(200,146,42,0.12)', borderWidth: 2.5,
-            pointBackgroundColor: '#e8b84b', pointRadius: 4, pointHoverRadius: 6,
-            tension: 0.35, fill: true
-          }
+          { label: 'Expected Damage', data: dmgData, borderColor: '#e8b84b', backgroundColor: 'rgba(200,146,42,0.12)', borderWidth: 2.5, pointBackgroundColor: '#e8b84b', pointRadius: 4, pointHoverRadius: 6, tension: 0.35, fill: true }
         ]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 0 },
-        plugins: {
-          legend: {
-            labels: {
-              color: '#d4c49a',
-              font: { family: "'Cinzel', serif", size: 11 },
-              usePointStyle: true
-            }
-          },
-          tooltip: {
-            backgroundColor: '#26262d', borderColor: '#5a5a66', borderWidth: 1,
-            titleColor: '#e8b84b', bodyColor: '#f0e6cc',
-            titleFont: { family: "'Cinzel', serif", size: 11 },
-            bodyFont:  { family: "'IM Fell English', serif", size: 12 }
-          }
-        },
-        scales: {
-          x: {
-            grid:  { color: 'rgba(90,90,102,0.3)' },
-            ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } }
-          },
-          y: {
-            grid:  { color: 'rgba(90,90,102,0.3)' },
-            ticks: { color: '#d4c49a', font: { family: "'Cinzel', serif", size: 10 } },
-            title: { display: true, text: 'Expected Damage', color: '#7a5518', font: { family: "'Cinzel', serif", size: 10 } }
-          }
-        }
-      }
+      options: CHART_DEFAULTS
     });
   }
 
-  /* ── Clipboard helpers ── */
+  function showChartUnavailable(canvas) {
+    const wrap = canvas.parentElement;
+    wrap.removeChild(canvas);
+    const msg = el('div', { style: { color: 'var(--blade)', textAlign: 'center', paddingTop: '80px', fontFamily: "'Cinzel', serif", fontSize: '0.75rem' } }, 'Graph unavailable (Chart.js blocked or failed to load).');
+    wrap.appendChild(msg);
+  }
+
+  /* ══════════════════════════════════════════
+     CLIPBOARD HELPERS
+  ══════════════════════════════════════════ */
   function copyText(str) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(str).catch(() => fallbackCopyText(str));
@@ -2000,56 +1799,97 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
     document.body.appendChild(ta);
     ta.select();
-    let succeeded = false;
-    try {
-      succeeded = document.execCommand('copy');
-    } catch (e) {
-      console.warn('execCommand copy failed:', e);
-    }
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch(e) { console.warn('execCommand copy failed:', e); }
     document.body.removeChild(ta);
-    if (!succeeded) {
-      showToast('⚠ Copy failed — please copy manually');
-    }
+    if (!ok) showToast('⚠ Copy failed — please copy manually');
   }
 
-  /* ── Card visual sync helper ── */
+  /* ══════════════════════════════════════════
+     CARD VISUAL SYNC
+  ══════════════════════════════════════════ */
   function syncCard(checkbox) {
     const card = checkbox.closest('.toggle-card');
     if (!card) return;
-    if (checkbox.checked) {
-      card.classList.add('is-checked');
-    } else {
-      card.classList.remove('is-checked');
-    }
+    checkbox.checked ? card.classList.add('is-checked') : card.classList.remove('is-checked');
   }
 
   function syncAllCards() {
     document.querySelectorAll('.toggle-card input[type="checkbox"]').forEach(syncCard);
   }
 
-  /* ── Graze input row visibility ── */
+  /* ══════════════════════════════════════════
+     CONDITIONAL ROW VISIBILITY
+  ══════════════════════════════════════════ */
   function syncGrazeRow() {
     const row = document.getElementById('graze-input-row');
-    if (row) {
-      if (document.getElementById('graze').checked) {
-        row.classList.remove('hidden');
+    if (!row) return;
+    document.getElementById('graze').checked ? row.classList.remove('hidden') : row.classList.add('hidden');
+  }
+
+  function syncOffHandRow() {
+    const row  = document.getElementById('offhand-input-row');
+    const mode = document.getElementById('twfMode').value;
+    const active = mode !== 'none';
+    if (!row) return;
+    active ? row.classList.remove('hidden') : row.classList.add('hidden');
+
+    const twfStyleInput = document.getElementById('twfStyle');
+    const infoText = document.getElementById('offhand-info-text');
+    if (infoText) {
+      infoText.textContent = twfStyleInput.checked
+        ? 'Dice + Damage Bonus (Two-Weapon Fighting style active).'
+        : 'Dice only — no modifier unless Two-Weapon Fighting style is active.';
+    }
+
+    // Handle Nick state — uncheck and visually sync if TWF deactivated
+    const nickCard  = document.getElementById('card-nick');
+    const nickInput = document.getElementById('nick');
+    if (nickCard) {
+      if (!active && nickInput.checked) {
+        nickInput.checked = false;
+        syncCard(nickInput);
+      }
+      nickCard.style.opacity       = active ? '1' : '0.4';
+      nickCard.style.pointerEvents = active ? '' : 'none';
+    }
+
+    // Handle TWF Style state — uncheck and visually sync if TWF deactivated
+    const twfStyleCard = document.getElementById('card-twfStyle');
+    if (twfStyleCard) {
+      if (!active && twfStyleInput.checked) {
+        twfStyleInput.checked = false;
+        syncCard(twfStyleInput);
+      }
+      twfStyleCard.style.opacity       = active ? '1' : '0.4';
+      twfStyleCard.style.pointerEvents = active ? '' : 'none';
+    }
+  }
+
+  function syncNickState() {
+    // Nick + Dual Wielder hint
+    const twfMode = document.getElementById('twfMode').value;
+    const nickOn  = document.getElementById('nick').checked;
+    const hint = document.querySelector('#twf-selector-group .input-hint');
+    if (hint) {
+      if (twfMode === 'dualwielder' && nickOn) {
+        hint.textContent = '✦ Dual Wielder + Nick active: 2 off-hand attacks';
+        hint.style.color = 'var(--gold-dim)';
       } else {
-        row.classList.add('hidden');
+        hint.textContent = 'Dual Wielder + Nick mastery = 2 off-hand attacks total';
+        hint.style.color = '';
       }
     }
   }
 
-  /* ── Accordion badge updaters ── */
+  /* ══════════════════════════════════════════
+     BADGE UPDATERS
+  ══════════════════════════════════════════ */
   function setBadge(id, text) {
     const b = document.getElementById(id);
     if (!b) return;
-    if (text) {
-      b.textContent = text;
-      b.classList.add('has-value');
-    } else {
-      b.textContent = 'Optional';
-      b.classList.remove('has-value');
-    }
+    if (text) { b.textContent = text; b.classList.add('has-value'); }
+    else       { b.textContent = 'Optional'; b.classList.remove('has-value'); }
   }
 
   function updateCombatBadge() {
@@ -2082,14 +1922,37 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
   }
 
   function updateWeaponBadge() {
-    const gwf   = document.getElementById('gwf').checked;
-    const graze = document.getElementById('graze').checked;
-    const vex   = document.getElementById('vex').checked;
+    const gwf      = document.getElementById('gwf').checked;
+    const twfStyle = document.getElementById('twfStyle').checked;
+    const graze    = document.getElementById('graze').checked;
+    const vex      = document.getElementById('vex').checked;
+    const nick     = document.getElementById('nick').checked;
+    const twfMode  = document.getElementById('twfMode').value;
     const parts = [];
-    if (gwf)   parts.push('GWF');
-    if (graze) parts.push('Graze');
-    if (vex)   parts.push('Vex');
+    if (gwf)               parts.push('GWF');
+    if (twfStyle)          parts.push('TWF Style');
+    if (twfMode !== 'none') parts.push(twfMode === 'dualwielder' ? 'Dual Wielder' : 'Light TWF');
+    if (graze)             parts.push('Graze');
+    if (vex)               parts.push('Vex');
+    if (nick)              parts.push('Nick');
     setBadge('badge-weapon', parts.length ? parts.join(' · ') : null);
+  }
+
+  function updateSpellParamsBadge() {
+    const dc   = document.getElementById('spellSaveDC').value.trim();
+    const dice = document.getElementById('spellDice').value.trim();
+    setBadge('badge-spell-params', dice ? `${dice} · DC ${dc}` : null);
+  }
+
+  function updateSpellMechanicsBadge() {
+    const half = document.getElementById('saveForHalf').checked;
+    setBadge('badge-spell-mechanics', half ? 'Save for Half' : 'No Damage on Save');
+  }
+
+  function updateSpellRollModeBadge() {
+    const adv = document.getElementById('spellAdvantage').checked;
+    const dis = document.getElementById('spellDisadvantage').checked;
+    setBadge('badge-spell-rollmode', adv ? 'Adv. on Save' : dis ? 'Disadv. on Save' : null);
   }
 
   function updateAllBadges() {
@@ -2099,106 +1962,138 @@ content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.goog
     updateWeaponBadge();
   }
 
-  /* ── Advantage / Disadvantage / Elven Accuracy mutex ── */
+  /* ══════════════════════════════════════════
+     MUTEX / TOGGLE SETUP
+  ══════════════════════════════════════════ */
   function setupToggleMutex() {
-    const adv  = document.getElementById('advantage');
-    const dis  = document.getElementById('disadvantage');
-    const elv  = document.getElementById('elvenAccuracy');
-    const gwf  = document.getElementById('gwf');
+    const adv   = document.getElementById('advantage');
+    const dis   = document.getElementById('disadvantage');
+    const elv   = document.getElementById('elvenAccuracy');
+    const gwf   = document.getElementById('gwf');
+    const twfSt = document.getElementById('twfStyle');
     const graze = document.getElementById('graze');
-    const vex  = document.getElementById('vex');
+    const vex   = document.getElementById('vex');
+    const nick  = document.getElementById('nick');
+    const twfMd = document.getElementById('twfMode');
 
     adv.addEventListener('change', () => {
       if (adv.checked) dis.checked = false;
-      syncAllCards();
-      updateRollModeBadge();
+      syncAllCards(); updateRollModeBadge();
     });
     dis.addEventListener('change', () => {
       if (dis.checked) { adv.checked = false; elv.checked = false; }
-      syncAllCards();
-      updateRollModeBadge();
+      syncAllCards(); updateRollModeBadge();
     });
     elv.addEventListener('change', () => {
-      if (elv.checked) { dis.checked = false; }
-      syncAllCards();
-      updateRollModeBadge();
+      if (elv.checked) dis.checked = false;
+      syncAllCards(); updateRollModeBadge();
     });
+
+    gwf.addEventListener('change',   () => { syncCard(gwf);   updateWeaponBadge(); });
+    twfSt.addEventListener('change', () => { syncCard(twfSt); syncOffHandRow(); updateWeaponBadge(); });
+    graze.addEventListener('change', () => { syncCard(graze); syncGrazeRow(); updateWeaponBadge(); });
+    vex.addEventListener('change',   () => { syncCard(vex);   updateWeaponBadge(); });
+    nick.addEventListener('change',  () => { syncCard(nick);  syncNickState(); updateWeaponBadge(); });
+
+    // GWF and TWF Style are mutually exclusive (you can't use both on the same weapon)
     gwf.addEventListener('change', () => {
-      syncCard(gwf);
-      updateWeaponBadge();
+      if (gwf.checked && twfSt.checked) { twfSt.checked = false; syncCard(twfSt); }
     });
-    graze.addEventListener('change', () => {
-      syncCard(graze);
-      syncGrazeRow();
-      updateWeaponBadge();
+    twfSt.addEventListener('change', () => {
+      if (twfSt.checked && gwf.checked) { gwf.checked = false; syncCard(gwf); }
     });
-    vex.addEventListener('change', () => {
-      syncCard(vex);
+
+    twfMd.addEventListener('change', () => {
+      syncOffHandRow();
+      syncNickState();
       updateWeaponBadge();
+      renderDiceTags('offHandDice', 'offhand-dice-tags');
     });
   }
 
-  /* ── Global nav tab switching ── */
+  function setupSpellToggles() {
+    const advEl  = document.getElementById('spellAdvantage');
+    const disEl  = document.getElementById('spellDisadvantage');
+    const halfEl = document.getElementById('saveForHalf');
+
+    advEl.addEventListener('change', () => {
+      if (advEl.checked) disEl.checked = false;
+      syncCard(advEl); syncCard(disEl); updateSpellRollModeBadge();
+    });
+    disEl.addEventListener('change', () => {
+      if (disEl.checked) advEl.checked = false;
+      syncCard(advEl); syncCard(disEl); updateSpellRollModeBadge();
+    });
+    halfEl.addEventListener('change', () => { syncCard(halfEl); updateSpellMechanicsBadge(); });
+  }
+
+  /* ══════════════════════════════════════════
+     GLOBAL NAV
+  ══════════════════════════════════════════ */
   function setupGlobalNav() {
-    const tabAttack = document.getElementById('tab-attack');
-    const tabSpell  = document.getElementById('tab-spell');
+    const tabAttack  = document.getElementById('tab-attack');
+    const tabSpell   = document.getElementById('tab-spell');
     const viewAttack = document.getElementById('attack-calculator-view');
     const viewSpell  = document.getElementById('spell-calculator-view');
 
     function switchTo(activeTab, activeView, inactiveTab, inactiveView) {
-      activeTab.classList.add('active');
-      activeTab.setAttribute('aria-selected', 'true');
-      inactiveTab.classList.remove('active');
-      inactiveTab.setAttribute('aria-selected', 'false');
-      activeView.classList.add('active');
-      inactiveView.classList.remove('active');
-      // Clear results when switching away from attack view
-      if (activeView !== viewAttack) {
-        const resultsDiv = document.getElementById('results-container');
-        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-        while (resultsDiv.firstChild) resultsDiv.removeChild(resultsDiv.firstChild);
+      activeTab.classList.add('active');      activeTab.setAttribute('aria-selected', 'true');
+      inactiveTab.classList.remove('active'); inactiveTab.setAttribute('aria-selected', 'false');
+      activeView.classList.add('active');     inactiveView.classList.remove('active');
+      // Fix 3: No DOM wipe. CSS .active handles display. Results survive tab switching.
+      // Resize whichever chart just became visible so Chart.js repaints at correct size.
+      const visibleCanvas = activeView.querySelector('canvas');
+      if (visibleCanvas) {
+        const chartInstance = Chart.getChart(visibleCanvas);
+        if (chartInstance) chartInstance.resize();
       }
     }
 
     tabAttack.addEventListener('click', () => switchTo(tabAttack, viewAttack, tabSpell, viewSpell));
-    tabSpell.addEventListener('click',  () => switchTo(tabSpell,  viewSpell,  tabAttack, viewAttack));
+    tabSpell.addEventListener('click',  () => switchTo(tabSpell, viewSpell, tabAttack, viewAttack));
   }
 
-  /* ── Boot ── */
+  /* ══════════════════════════════════════════
+     BOOT
+  ══════════════════════════════════════════ */
   document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('weaponDice').addEventListener('input', () => { updateDiceTags(); updateCombatBadge(); });
-    document.getElementById('toHit').addEventListener('input', updateCombatBadge);
-    document.getElementById('dmgBonus').addEventListener('input', updateCombatBadge);
-    document.getElementById('numAttacks').addEventListener('change', updateAdvancedBadge);
+    // Attack calculator inputs
+    document.getElementById('weaponDice').addEventListener('input',   () => { renderDiceTags('weaponDice', 'dice-tags'); updateCombatBadge(); });
+    document.getElementById('toHit').addEventListener('input',        updateCombatBadge);
+    document.getElementById('dmgBonus').addEventListener('input',     updateCombatBadge);
+    document.getElementById('numAttacks').addEventListener('change',  updateAdvancedBadge);
     document.getElementById('critThreshold').addEventListener('change', updateAdvancedBadge);
     document.getElementById('bonusDmgDice').addEventListener('input', updateAdvancedBadge);
     document.getElementById('extraCritDice').addEventListener('input', updateAdvancedBadge);
-    document.getElementById('grazeDamage').addEventListener('input', updateCombatBadge);
-    document.getElementById('calc-btn').addEventListener('click', calculateExpectedDamage);
+    document.getElementById('grazeDamage').addEventListener('input',  updateCombatBadge);
+    document.getElementById('offHandDice').addEventListener('input',  () => { renderDiceTags('offHandDice', 'offhand-dice-tags'); });
+    document.getElementById('calc-btn').addEventListener('click',     calculateExpectedDamage);
+
+    // Spell calculator inputs
+    document.getElementById('spellDice').addEventListener('input', () => { renderDiceTags('spellDice', 'spell-dice-tags'); updateSpellParamsBadge(); });
+    document.getElementById('spellSaveDC').addEventListener('input', updateSpellParamsBadge);
+    document.getElementById('spell-calc-btn').addEventListener('click', calculateSpellExpectedDamage);
+
     setupGlobalNav();
     setupToggleMutex();
     setupSpellToggles();
+
+    // Initial state
     syncAllCards();
     syncGrazeRow();
+    syncOffHandRow();
+    syncNickState();
     updateAllBadges();
-    updateDiceTags();
-    // Spell panel init
-    updateSpellDiceTags();
+    renderDiceTags('weaponDice', 'dice-tags'); // Seed the visible dice tag on load
     updateSpellParamsBadge();
     updateSpellMechanicsBadge();
     updateSpellRollModeBadge();
-    document.getElementById('spellDice').addEventListener('input', () => { updateSpellDiceTags(); updateSpellParamsBadge(); });
-    document.getElementById('spellSaveDC').addEventListener('input', updateSpellParamsBadge);
-    document.getElementById('spell-calc-btn').addEventListener('click', calculateSpellExpectedDamage);
-    syncAllCards();
-    syncGrazeRow();
-    updateAllBadges();
-    updateDiceTags();
+
+    // Initial calculation
     calculateExpectedDamage();
   });
 
 }());
 </script>
-
 </body>
 </html>
